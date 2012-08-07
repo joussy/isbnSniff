@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.librarything.com/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.librarything.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ltml">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="author">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="id" type="xs:unsignedByte" use="required" />
+                      <xs:attribute name="authorcode" type="xs:string" use="required" />
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="url" type="xs:string" />
+              <xs:element name="commonknowledge">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="fieldList">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="field">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="versionList">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element maxOccurs="unbounded" name="version">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="date">
+                                              <xs:complexType>
+                                                <xs:simpleContent>
+                                                  <xs:extension base="xs:string">
+                                                    <xs:attribute name="timestamp" type="xs:unsignedInt" use="required" />
+                                                  </xs:extension>
+                                                </xs:simpleContent>
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="person">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element name="name" type="xs:string" />
+                                                  <xs:element name="url" type="xs:string" />
+                                                </xs:sequence>
+                                                <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="factList">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element maxOccurs="unbounded" name="fact" type="xs:string" />
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                          <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+                                          <xs:attribute name="archived" type="xs:unsignedByte" use="required" />
+                                          <xs:attribute name="lang" type="xs:string" use="required" />
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="type" type="xs:unsignedByte" use="required" />
+                              <xs:attribute name="name" type="xs:string" use="required" />
+                              <xs:attribute name="displayName" type="xs:string" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+            <xs:attribute name="type" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="legal" type="xs:string" />
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:decimal" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

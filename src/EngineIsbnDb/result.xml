@@ -1,0 +1,33 @@
+﻿<ISBNdb server_time="2012-08-06T19:00:23Z">
+  <BookList total_results="1" page_size="10" page_number="1" shown_results="1">
+    <BookData book_id="harry_potter_and_the_sorcerers_stone_a03" isbn="059035340X" isbn13="9780590353403">
+      <Title>
+        Harry Potter and the sorcerer's stone
+      </Title>
+      <TitleLong>
+        Harry Potter and the sorcerer's stone
+      </TitleLong>
+        <AuthorsText>
+        by J. K. Rowling; illustrations by Mary Grandpré
+      </AuthorsText>
+      <PublisherText publisher_id="arthur_a_levine_books">
+        New York : Arthur A. Levine Books, 1998, c1997.
+      </PublisherText>
+      <Details change_time="2003-11-05T09:12:05Z" price_time="2012-08-06T15:51:49Z" edition_info="(hardcover)" language="eng" physical_description_text="vi, 309 p. : ill. ; 24 cm." lcc_number="wedwed" dewey_decimal_normalized="wef" dewey_decimal="sdf"/>
+      <Summary>
+        Rescued from the outrageous neglect of his aunt and uncle, a young boy with a great destiny proves his worth while attending Hogwarts School for Wizards and Witches.
+      </Summary>
+      <Notes>
+        Published by arrangement with Bloomsbury Pub. Plc. Harry Potter's first adventure.
+      </Notes>
+      <Authors>
+        <Person person_id="rowling_j_k">
+          Rowling, J. K.
+        </Person>
+        <Person person_id="rowling_j_kd">
+          Rowling, J. K.
+        </Person>
+      </Authors>
+    </BookData>
+  </BookList>
+</ISBNdb>

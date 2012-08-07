@@ -1,0 +1,40 @@
+{
+    "ISBN:9781934356005": {
+        "publishers": [{
+            "name": "Pragmatic Bookshelf"
+        }], 
+        "identifiers": {
+            "isbn_13": ["9781934356005"], 
+            "openlibrary": ["OL8833065M"], 
+            "isbn_10": ["193435600X"], 
+            "goodreads": ["808814"], 
+            "librarything": ["2720239"]
+            }, 
+        "subtitle": "Software for a Concurrent World", 
+        "weight": "1.8 pounds", 
+        "title": "Programming Erlang", 
+        "url": "http://openlibrary.org/books/OL8833065M/Programming_Erlang", 
+        "number_of_pages": 536, 
+        "cover": {
+            "small": "http://covers.openlibrary.org/b/id/2131797-S.jpg", 
+            "large": "http://covers.openlibrary.org/b/id/2131797-L.jpg", 
+            "medium": "http://covers.openlibrary.org/b/id/2131797-M.jpg"
+        }, 
+        "subjects": [{
+            "url": "http://openlibrary.org/subjects/erlang_(computer_program_language)", 
+            "name": "ERLANG (Computer program language)"
+        }, {
+            "url": "http://openlibrary.org/subjects/handbooks,_manuals", 
+            "name": "Handbooks, manuals"
+        }, {
+            "url": "http://openlibrary.org/subjects/programming_languages_(electronic_computers)", 
+            "name": "Programming languages (Electronic computers)"
+        }], 
+        "publish_date": "July 11, 2007", 
+        "key": "/books/OL8833065M", 
+        "authors": [{
+            "url": "http://openlibrary.org/authors/OL840058A/Joe_Armstrong", 
+            "name": "Joe Armstrong"
+        }]
+        }
+    }

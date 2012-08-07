@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ISBNdb">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="BookList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="BookData">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Title" type="xs:string" />
+                    <xs:element name="TitleLong" type="xs:string" />
+                    <xs:element name="AuthorsText" type="xs:string" />
+                    <xs:element name="PublisherText">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute name="publisher_id" type="xs:string" use="required" />
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Details">
+                      <xs:complexType>
+                        <xs:attribute name="change_time" type="xs:dateTime" use="required" />
+                        <xs:attribute name="price_time" type="xs:dateTime" use="required" />
+                        <xs:attribute name="edition_info" type="xs:string" use="required" />
+                        <xs:attribute name="language" type="xs:string" use="required" />
+                        <xs:attribute name="physical_description_text" type="xs:string" use="required" />
+                        <xs:attribute name="lcc_number" type="xs:string" use="required" />
+                        <xs:attribute name="dewey_decimal_normalized" type="xs:string" use="required" />
+                        <xs:attribute name="dewey_decimal" type="xs:string" use="required" />
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Summary" type="xs:string" />
+                    <xs:element name="Notes" type="xs:string" />
+                    <xs:element name="Authors">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="Person">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute name="person_id" type="xs:string" use="required" />
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="book_id" type="xs:string" use="required" />
+                  <xs:attribute name="isbn" type="xs:string" use="required" />
+                  <xs:attribute name="isbn13" type="xs:unsignedLong" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="total_results" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="page_size" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="page_number" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="shown_results" type="xs:unsignedByte" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="server_time" type="xs:dateTime" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
