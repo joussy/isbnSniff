@@ -39,13 +39,6 @@ import java.util.List;
  */
 
 public class ISBNSniff {
-    public static final String KEY_ISBNDB = "M3J2QAT3";
-    public static final String KEY_GOOGLE_BOOKS = "AIzaSyDqSWIheWKftCfXxWvf_hyyFDsAzuvYGm0";
-    public static final String KEY_AMAZON_ASSOCIATED = "joussybuffout-20";
-    public static final String KEY_AMAZON_SECRET = "VZJOAxxbGBXIiRanJeYJUySwifBqZdGTfxrdFyu1";
-    public static final String KEY_AMAZON_AWS = "AKIAILAAYXVGXRWSBF7A";
-    public static final String KEY_LIBRARYTHING = "69dccf2d7d299190bee974902fe2b259";
-    public static final String KEY_BOOKSHARE = "xaqugvnv2xepcbcqh5449wxk";
     public static void main(String[] args) {
 
         
