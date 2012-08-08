@@ -7,6 +7,7 @@ import EngineGoogleBooks.ModuleGoogleBooks;
 import EngineBookShare.ModuleBookshare;
 import EngineAmazon.ModuleAmazon;
 import EngineIsbnDb.ModuleIsbndb;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,39 +48,45 @@ public class ISBNSniff {
     public static final String KEY_BOOKSHARE = "xaqugvnv2xepcbcqh5449wxk";
     public static void main(String[] args) {
 
+        
         List<IsbnModule> moduleList = new ArrayList();
         
-        ModuleIsbndb modI = new ModuleIsbndb(KEY_ISBNDB);
+        ModuleIsbndb modI = new ModuleIsbndb();
         moduleList.add(modI);
         
-        ModuleGoogleBooks modG = new ModuleGoogleBooks(KEY_GOOGLE_BOOKS);
+        ModuleGoogleBooks modG = new ModuleGoogleBooks();
         moduleList.add(modG);
         
-        ModuleAmazon modA = new ModuleAmazon(KEY_AMAZON_ASSOCIATED, KEY_AMAZON_AWS, KEY_AMAZON_SECRET);
+        ModuleAmazon modA = new ModuleAmazon();
         moduleList.add(modA);
         
-        ModuleLibraryThing modL = new ModuleLibraryThing(KEY_LIBRARYTHING);
+        ModuleLibraryThing modL = new ModuleLibraryThing();
         moduleList.add(modL);
         
-        ModuleBookshare modB = new ModuleBookshare(KEY_BOOKSHARE);
+        ModuleBookshare modB = new ModuleBookshare();
         moduleList.add(modB);
 
-        ModuleOpenLibrary modO = new ModuleOpenLibrary(null);
+        ModuleOpenLibrary modO = new ModuleOpenLibrary();
         moduleList.add(modO);
+
+        ConfigurationParser configurationParser =
+                new ConfigurationParser(new File("src/isbnsniff/conf.ini"));
+        configurationParser.parseConfiguration(moduleList);
 
         for (IsbnModule module : moduleList)
         {
 //            module.addBookItem(new BookItem(new IsbnNumber("9781934356005")));//Erlang
 //            module.addBookItem(new BookItem(new IsbnNumber("9780061031328")));//Terry pratchet
-//            module.addBookItem(new BookItem(new IsbnNumber("9780590353403")));//Harry potter
+            module.addBookItem(new BookItem(new IsbnNumber("9780590353403")));//Harry potter
 //            module.addBookItem(new BookItem(new IsbnNumber("9781459235908"))); //Her Better Half
 //            module.addBookItem(new BookItem(new IsbnNumber("9780061031308"))); // Does not exist
-            module.addBookItem(new BookItem(new IsbnNumber("0525951849"))); // Does not exist
-            module.addBookItem(new BookItem(new IsbnNumber("0233964444"))); // Does not exist
-            module.addBookItem(new BookItem(new IsbnNumber("0028638360"))); // Does not exist
+//            module.addBookItem(new BookItem(new IsbnNumber("0525951849"))); 
+//            module.addBookItem(new BookItem(new IsbnNumber("0233964444"))); 
+//            module.addBookItem(new BookItem(new IsbnNumber("0028638360")));
             
             module.processQuery();
             System.out.println("/--" + module.getModuleName());
+            System.out.println("enable=" + module.isEnabled());
             for (BookItem book : module.getBookItemList())
             {
                 System.out.println("Title=" + book.getTitle()

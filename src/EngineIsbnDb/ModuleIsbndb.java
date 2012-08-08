@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import org.apache.commons.configuration.SubnodeConfiguration;
 
 
 /**
@@ -32,20 +33,15 @@ public class ModuleIsbndb extends IsbnModule {
     final static String MODULE_NAME = "IsbnDb";
     private String accessKey;
     private Unmarshaller unmarshaller = null;
-    public ModuleIsbndb(String key)
+    public ModuleIsbndb()
     {
         moduleName = MODULE_NAME;
-        accessKey = key;
         try {
             JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class, ISBNdb.class);
             unmarshaller = jc.createUnmarshaller();
         } catch (JAXBException ex) {
             Logger.getLogger(ISBNdb.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    public void setaccessKey(String value)
-    {
-        accessKey = value;
     }
     @Override
     protected void processQueryIsbn(BookItem book) {
@@ -91,5 +87,10 @@ public class ModuleIsbndb extends IsbnModule {
         if (m.find()) {
             book.setNbPages(Integer.parseInt(m.group(1)));
         }
+    }
+
+    @Override
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
+        accessKey = sObj.getString("api_key", "undefined");
     }
 }

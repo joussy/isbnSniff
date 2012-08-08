@@ -14,15 +14,16 @@ import isbnsniff.IsbnModule;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class ModuleGoogleBooks extends IsbnModule {
+
     final static String MODULE_NAME = "GoogleBooks";
     private String accessKey = null;
     private Books books = null;
-    public ModuleGoogleBooks(String key)
-    {
+
+    public ModuleGoogleBooks() {
         moduleName = MODULE_NAME;
-        accessKey = key;
     }
 
     @Override
@@ -40,28 +41,25 @@ public class ModuleGoogleBooks extends IsbnModule {
         } catch (IOException ex) {
             Logger.getLogger(ModuleGoogleBooks.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (volumes.getTotalItems() == 0 || volumes.getItems() == null)
-        {
+        if (volumes.getTotalItems() == 0 || volumes.getItems() == null) {
             return;
-        }
-        else
-        {
+        } else {
             processVolumes(volumes, book);
         }
     }
+
     private void processVolumes(Volumes volumes, BookItem book) {
-        for (Volume volume : volumes.getItems()) 
-        {
+        for (Volume volume : volumes.getItems()) {
             book.setTitle(volume.getVolumeInfo().getTitle());
             book.setNbPages(volume.getVolumeInfo().getPageCount());
-/*
+            /*
             System.out.println("Author: ");
-         java.util.List<String> authors = volumeInfo.getAuthors();
-          if (authors != null && !authors.isEmpty()) {
+            java.util.List<String> authors = volumeInfo.getAuthors();
+            if (authors != null && !authors.isEmpty()) {
             System.out.print("Author(s): ");
             for (int i = 0; i < authors.size(); ++i) {
-              System.out.print(authors.get(i));
-              }
+            System.out.print(authors.get(i));
+            }
             }
              * 
              */
@@ -70,16 +68,18 @@ public class ModuleGoogleBooks extends IsbnModule {
 
     @Override
     protected void processQueryInitialize() {
-    JsonHttpRequestInitializer credential = new GoogleKeyInitializer(accessKey);    
-    // Set up Books client.
-    JsonFactory jsonFactory = new JacksonFactory();
-    books = new Books.Builder(new NetHttpTransport(), jsonFactory, null)
-        .setApplicationName("Google-BooksSample/1.0")
-        .setJsonHttpRequestInitializer(credential)
-        .build();
+        JsonHttpRequestInitializer credential = new GoogleKeyInitializer(accessKey);
+        // Set up Books client.
+        JsonFactory jsonFactory = new JacksonFactory();
+        books = new Books.Builder(new NetHttpTransport(), jsonFactory, null).setApplicationName("Google-BooksSample/1.0").setJsonHttpRequestInitializer(credential).build();
     }
 
     @Override
     protected void processQueryTerminate() {
+    }
+
+    @Override
+    public void setConfigurationSpecific(SubnodeConfiguration sObj) {        
+        accessKey = sObj.getString("api_key", "undefined");
     }
 }

@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.configuration.SubnodeConfiguration;
 import org.xml.sax.SAXException;
 
 /**
@@ -20,19 +21,12 @@ import org.xml.sax.SAXException;
  */
 public class ModuleOpenLibrary extends IsbnModule {
     final static String MODULE_NAME = "OpenLibrary";
-    private String accessKey;
     private WebConversation wc = null;
-    public ModuleOpenLibrary(String key)
+    public ModuleOpenLibrary()
     {
         moduleName = MODULE_NAME;
         HttpUnitOptions.setScriptingEnabled(false);
-        accessKey = key;
-    }
-    public void setaccessKey(String value)
-    {
-        accessKey = value;
-    }
-    
+    }    
     @Override
     protected void processQueryIsbn(BookItem book)
     {
@@ -73,5 +67,9 @@ public class ModuleOpenLibrary extends IsbnModule {
             return;
         book.setTitle(olj.getISBN().getTitle());
         book.setNbPages(olj.getISBN().getNumber_of_pages().intValue());
+    }
+
+    @Override
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
     }
 }

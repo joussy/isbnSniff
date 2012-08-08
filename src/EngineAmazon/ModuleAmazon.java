@@ -16,11 +16,13 @@ import isbnsniff.IsbnNumber;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.Holder;
+import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
  *
  * @author jousse_s
  */
+
 public class ModuleAmazon extends IsbnModule {
     final static String MODULE_NAME = "AmazonDb";
     private String associateTag;
@@ -29,17 +31,9 @@ public class ModuleAmazon extends IsbnModule {
     private ItemLookup lookup;
     private ItemLookupRequest itemRequest;
     private AWSECommerceServicePortType port;
-    public ModuleAmazon(String tag, String accessKey, String secretKey)
+    public ModuleAmazon()
     {
         moduleName = MODULE_NAME;
-        associateTag = tag;
-        awsAccessKey = accessKey;
-        secretAccessKey = secretKey;
-        // Set the service:
-        AWSECommerceService service = new AWSECommerceService();
-        service.setHandlerResolver(new AwsHandlerResolver(secretAccessKey));
-        //Set the service port:
-        port = service.getAWSECommerceServicePortFR();
     }
     private void processItemList(List<Items> l)
     {
@@ -83,6 +77,12 @@ public class ModuleAmazon extends IsbnModule {
 
     @Override
     protected void processQueryInitialize() {
+        // Set the service:
+        AWSECommerceService service = new AWSECommerceService();
+        service.setHandlerResolver(new AwsHandlerResolver(secretAccessKey));
+        //Set the service port:
+        port = service.getAWSECommerceServicePortUK();
+
         lookup = new ItemLookup();
         //Get the operation object:
         itemRequest = new ItemLookupRequest();
@@ -112,5 +112,15 @@ public class ModuleAmazon extends IsbnModule {
                 operationrequest,
                 items);
         processItemList(items.value);
+    }
+
+    @Override
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
+//        api_secret_key=VZJOAxxbGBXIiRanJeYJUySwifBqZdGTfxrdXXXX
+//        api_access_key=AKIAILAAYXVGXRWSXXXX
+//        api_associates_id=joussybuffout-20
+        associateTag = sObj.getString("api_associates_id", "undefined");
+        awsAccessKey = sObj.getString("api_access_key", "undefined");
+        secretAccessKey = sObj.getString("api_secret_key", "undefined");
     }
 }
