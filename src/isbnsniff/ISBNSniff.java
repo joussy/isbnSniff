@@ -40,53 +40,28 @@ import java.util.List;
 
 public class ISBNSniff {
     public static void main(String[] args) {
-
-        
-        List<IsbnModule> moduleList = new ArrayList();
-        
-        ModuleIsbndb modI = new ModuleIsbndb();
-        moduleList.add(modI);
-        
-        ModuleGoogleBooks modG = new ModuleGoogleBooks();
-        moduleList.add(modG);
-        
-        ModuleAmazon modA = new ModuleAmazon();
-        moduleList.add(modA);
-        
-        ModuleLibraryThing modL = new ModuleLibraryThing();
-        moduleList.add(modL);
-        
-        ModuleBookshare modB = new ModuleBookshare();
-        moduleList.add(modB);
-
-        ModuleOpenLibrary modO = new ModuleOpenLibrary();
-        moduleList.add(modO);
-
         ConfigurationParser configurationParser =
                 new ConfigurationParser(new File("src/isbnsniff/conf.ini"));
-        configurationParser.parseConfiguration(moduleList);
+        SearchEngine sEngine = new SearchEngine(configurationParser);
 
-        for (IsbnModule module : moduleList)
-        {
-//            module.addBookItem(new BookItem(new IsbnNumber("9781934356005")));//Erlang
-//            module.addBookItem(new BookItem(new IsbnNumber("9780061031328")));//Terry pratchet
-            module.addBookItem(new BookItem(new IsbnNumber("9780590353403")));//Harry potter
-//            module.addBookItem(new BookItem(new IsbnNumber("9781459235908"))); //Her Better Half
-//            module.addBookItem(new BookItem(new IsbnNumber("9780061031308"))); // Does not exist
-//            module.addBookItem(new BookItem(new IsbnNumber("0525951849"))); 
-//            module.addBookItem(new BookItem(new IsbnNumber("0233964444"))); 
-//            module.addBookItem(new BookItem(new IsbnNumber("0028638360")));
-            
-            module.processQuery();
-            System.out.println("/--" + module.getModuleName());
-            System.out.println("enable=" + module.isEnabled());
-            for (BookItem book : module.getBookItemList())
-            {
-                System.out.println("Title=" + book.getTitle()
-                        + ", NbPages=" + book.getNbPages()
-                        + ", Isbn=" + book.getIsbn().getIsbn13());
-            }
-            System.out.println("--/");
-        }
+        sEngine.addIsbnModule(new ModuleIsbndb());
+        sEngine.addIsbnModule(new ModuleGoogleBooks());
+        sEngine.addIsbnModule(new ModuleAmazon());
+        sEngine.addIsbnModule(new ModuleLibraryThing());
+        sEngine.addIsbnModule(new ModuleBookshare());
+        sEngine.addIsbnModule(new ModuleOpenLibrary());
+
+        sEngine.addIsbn(new IsbnNumber("9781934356005"));//Erlang
+        sEngine.addIsbn(new IsbnNumber("9780061031328"));//Terry pratchet
+        sEngine.addIsbn(new IsbnNumber("9780590353403"));//Harry potter
+        sEngine.addIsbn(new IsbnNumber("9781459235908")); //Her Better Half
+        
+        sEngine.processConfiguration();
+        sEngine.printValuesPriority();
+        sEngine.performSearch();
+        sEngine.mergeResults();
+        sEngine.printModuleResults();
+        sEngine.printResults();
+        
     }
 }

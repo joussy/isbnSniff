@@ -65,6 +65,7 @@ public class ModuleAmazon extends IsbnModule {
                 //System.out.println("getSKU=" + item.getItemAttributes().getSKU());
                 if (book != null)
                 {
+                    book.setTitle(item.getItemAttributes().getTitle());
                     book.setNbPages(item.getItemAttributes().getNumberOfPages().intValue());
                 }
             }

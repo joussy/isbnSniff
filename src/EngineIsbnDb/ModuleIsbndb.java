@@ -4,7 +4,6 @@
 package EngineIsbnDb;
 
 
-import EngineIsbnDb.ISBNdb.BookList;
 import EngineIsbnDb.ISBNdb.BookList.BookData;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
@@ -24,11 +23,6 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author jousse_s
  */
-/*
- *             "http://www.librarything.com/services/rest/1.1/?method=librarything.ck.getwork&isbn="
-                + book.getIsbn().getIsbn13() + "&apikey=" + accessKey);
-
- */
 public class ModuleIsbndb extends IsbnModule {
     final static String MODULE_NAME = "IsbnDb";
     private String accessKey;
@@ -47,8 +41,13 @@ public class ModuleIsbndb extends IsbnModule {
     protected void processQueryIsbn(BookItem book) {
         URL query = null;
         ISBNdb isbndbXml = null;
-        String path = "http://isbndb.com/api/books.xml?&results=details&results=authors&results=texts&index1=isbn&value1="
-                + book.getIsbn().getIsbn13() + "&access_key=" + accessKey;
+        String path = "http://isbndb.com/api/books.xml?"
+                + "results=details"
+                + "&results=authors"
+                + "&results=texts"
+                + "&index1=isbn"
+                + "&value1=" + book.getIsbn().getIsbn13()
+                + "&access_key=" + accessKey;
         try {
             query = new URL(path);
         } catch (MalformedURLException ex) {

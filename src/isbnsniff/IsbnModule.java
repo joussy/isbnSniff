@@ -5,6 +5,8 @@ package isbnsniff;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
@@ -66,7 +68,8 @@ public abstract class IsbnModule {
         try {
             enabled = sObj.getBoolean("enable", enabled);
         } catch (ConversionException e) {
-            
+            //ERROR PARSING ERROR CHECK
+            //Logger.getLogger(IsbnModule.class.getName()).log(Level.SEVERE, null, e);            
         }
         setConfigurationSpecific(sObj);
     }
