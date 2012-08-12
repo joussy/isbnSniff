@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public abstract class IsbnInput {
     List<IsbnNumber> isbnList = new ArrayList();
     InputStream iStream = null;
-    public abstract void parseStream();
+    protected abstract void parseStream();
     public IsbnInput(InputStream s)
     {
         iStream = s;
@@ -40,6 +40,7 @@ public abstract class IsbnInput {
             BufferedReader br = new BufferedReader(is);
             read = br.readLine();
             while (read != null) {
+                //System.out.println(read);
                 sb.append(read);
                 read = br.readLine();
             }

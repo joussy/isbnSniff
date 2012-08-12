@@ -74,5 +74,8 @@ public class ISBNSniff {
         sEngine.printModuleResults();
         sEngine.printResults();
         
+        IsbnOutput output = new IsbnOutputXml(new File("output.xml"));
+        output.setBookList(sEngine.getResults());
+        output.writeOutput();
     }
 }

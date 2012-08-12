@@ -34,6 +34,15 @@ public class SearchEngine {
         processValuesConfiguration();
     }
 
+    public void setPriorityList(List<IsbnModule> value) {
+        priorityList = value;
+    }
+    
+    public void setValuesPriority(Map<String, List<IsbnModule>> value)
+    {
+        valuesPriority = value;
+    }
+    
     private void processGeneralConfiguration() {
         HierarchicalConfiguration generalSection = cParser.getIniConf().getSection("general");
         priorityList = ConfigurationParser.getModuleListFromParam(
@@ -161,5 +170,9 @@ public class SearchEngine {
             SubnodeConfiguration sObj = cParser.getIniConf().getSection(module.getModuleName());
             module.setConfiguration(sObj);
         }
+    }
+    
+    public List<BookItem> getResults() {
+        return bookResult;
     }
 }
