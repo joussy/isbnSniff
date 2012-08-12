@@ -22,8 +22,8 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author jousse_s
  */
-
 public class ModuleAmazon extends IsbnModule {
+
     final static String MODULE_NAME = "AmazonDb";
     private String associateTag;
     private String awsAccessKey; // Generated on https://portal.aws.amazon.com/gp/aws/securityCredentials
@@ -31,46 +31,39 @@ public class ModuleAmazon extends IsbnModule {
     private ItemLookup lookup;
     private ItemLookupRequest itemRequest;
     private AWSECommerceServicePortType port;
-    public ModuleAmazon()
-    {
+
+    public ModuleAmazon() {
         moduleName = MODULE_NAME;
     }
-    private void processItemList(List<Items> l)
-    {
-        for (Items itemList : l)
-        {
+
+    private void processItemList(List<Items> l) {
+        for (Items itemList : l) {
             Request requestElement = itemList.getRequest();
-            for (Item item : itemList.getItem())
-            {
+            for (Item item : itemList.getItem()) {
                 List<IsbnNumber> amazonIsbnList = new ArrayList();
-                for (String nb : item.getItemAttributes().getEISBN())
-                    amazonIsbnList.add(new IsbnNumber(nb));
-                amazonIsbnList.add(new IsbnNumber(item.getItemAttributes().getISBN()));
+                if (item.getItemAttributes() != null) {
+                    for (String nb : item.getItemAttributes().getEISBN()) {
+                        amazonIsbnList.add(new IsbnNumber(nb));
+                    }
+                    amazonIsbnList.add(new IsbnNumber(item.getItemAttributes().getISBN()));
+                }
                 BookItem book = null;
-                for (IsbnNumber isbn : amazonIsbnList)
-                {
-                    for (BookItem bookItem : getBookItemList())
-                    {
-                        if (isbn.equals(bookItem.getIsbn()))
-                        {
+                for (IsbnNumber isbn : amazonIsbnList) {
+                    for (BookItem bookItem : getBookItemList()) {
+                        if (isbn.equals(bookItem.getIsbn())) {
                             book = bookItem;
                             break;
                         }
                     }
                 }
-                //System.out.println("getISBN=" + item.getItemAttributes().getISBN());
-                //System.out.println("getEAN=" + item.getItemAttributes().getEAN());
-                //System.out.println("getEANList=" + item.getItemAttributes().getEANList());
-                //System.out.println("getEISBN=" + item.getItemAttributes().getEISBN());
-                //System.out.println("getSKU=" + item.getItemAttributes().getSKU());
-                if (book != null)
-                {
+                if (book != null) {
                     book.setTitle(item.getItemAttributes().getTitle());
                     book.setNbPages(item.getItemAttributes().getNumberOfPages().intValue());
                 }
             }
         }
     }
+
     @Override
     protected void processQueryIsbn(BookItem book) {
         itemRequest.getItemId().add(book.getIsbn().getIsbn13());

@@ -78,13 +78,11 @@ public class SearchEngine {
     public void mergeResults() {
         for (IsbnNumber isbn : isbnList) {
             BookItem book = new BookItem(isbn);
-            /*
             for (IsbnModule module : priorityList) {
                 book.automaticMerge(module.getBookItem(isbn), valuesPriority);
             }
-             * 
-             */
             for (Entry<String, List<IsbnModule>> entry : valuesPriority.entrySet()) {
+                book.setValue(entry.getKey(), null);
                 for (IsbnModule module : entry.getValue())
                 {
                     Object value = module.getBookItem(isbn).getValue(entry.getKey());
@@ -116,6 +114,13 @@ public class SearchEngine {
     public void addIsbn(IsbnNumber isbn) {
         if (!isbnList.contains(isbn)) {
             isbnList.add(isbn);
+        }
+    }
+    public void setIsbnList(List<IsbnNumber> value)
+    {
+        for (IsbnNumber isbn : value)
+        {
+            addIsbn(isbn);
         }
     }
 

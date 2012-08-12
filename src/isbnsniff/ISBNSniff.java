@@ -8,8 +8,10 @@ import EngineBookShare.ModuleBookshare;
 import EngineAmazon.ModuleAmazon;
 import EngineIsbnDb.ModuleIsbndb;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -42,6 +44,13 @@ public class ISBNSniff {
     public static void main(String[] args) {
         ConfigurationParser configurationParser =
                 new ConfigurationParser(new File("src/isbnsniff/conf.ini"));
+        IsbnInput in = null;
+        try {
+            in = new IsbnInputCsv(new FileInputStream(new File("src/isbnsniff/example.csv")));
+            in.parseStream();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ISBNSniff.class.getName()).log(Level.SEVERE, null, ex);
+        }
         SearchEngine sEngine = new SearchEngine(configurationParser);
 
         sEngine.addIsbnModule(new ModuleIsbndb());
@@ -51,10 +60,12 @@ public class ISBNSniff {
         sEngine.addIsbnModule(new ModuleBookshare());
         sEngine.addIsbnModule(new ModuleOpenLibrary());
 
-        sEngine.addIsbn(new IsbnNumber("9781934356005"));//Erlang
-        sEngine.addIsbn(new IsbnNumber("9780061031328"));//Terry pratchet
-        sEngine.addIsbn(new IsbnNumber("9780590353403"));//Harry potter
-        sEngine.addIsbn(new IsbnNumber("9781459235908")); //Her Better Half
+        sEngine.setIsbnList(in.getIsbnList());
+//        sEngine.addIsbn(new IsbnNumber("9781934356005"));//Erlang
+//        sEngine.addIsbn(new IsbnNumber("9780061031328"));//Terry pratchet
+//        sEngine.addIsbn(new IsbnNumber("9780590353403"));//Harry potter
+//        sEngine.addIsbn(new IsbnNumber("9781459235908")); //Her Better Half
+//        sEngine.addIsbn(new IsbnNumber("9780373881093")); //Her Better Half
         
         sEngine.processConfiguration();
         sEngine.printValuesPriority();
