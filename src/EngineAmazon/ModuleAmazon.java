@@ -11,7 +11,9 @@ import com.ECS.client.jax.Items;
 import com.ECS.client.jax.OperationRequest;
 import com.ECS.client.jax.Request;
 import isbnsniff.BookItem;
+import isbnsniff.IsbnFormatException;
 import isbnsniff.IsbnModule;
+import isbnsniff.IsbnModuleException;
 import isbnsniff.IsbnNumber;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +45,13 @@ public class ModuleAmazon extends IsbnModule {
                 List<IsbnNumber> amazonIsbnList = new ArrayList();
                 if (item.getItemAttributes() != null) {
                     for (String nb : item.getItemAttributes().getEISBN()) {
-                        amazonIsbnList.add(new IsbnNumber(nb));
+                        try {
+                            amazonIsbnList.add(new IsbnNumber(nb));
+                        } catch (IsbnFormatException ex) {}
                     }
-                    amazonIsbnList.add(new IsbnNumber(item.getItemAttributes().getISBN()));
+                    try {
+                        amazonIsbnList.add(new IsbnNumber(item.getItemAttributes().getISBN()));
+                    } catch (IsbnFormatException ex) {}
                 }
                 BookItem book = null;
                 for (IsbnNumber isbn : amazonIsbnList) {
@@ -70,13 +76,16 @@ public class ModuleAmazon extends IsbnModule {
     }
 
     @Override
-    protected void processQueryInitialize() {
+    protected void processQueryInitialize() throws IsbnModuleException {
         // Set the service:
         AWSECommerceService service = new AWSECommerceService();
         service.setHandlerResolver(new AwsHandlerResolver(secretAccessKey));
         //Set the service port:
+        try {
         port = service.getAWSECommerceServicePortUK();
-
+        } catch (Exception ex) {
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
+        }
         lookup = new ItemLookup();
         //Get the operation object:
         itemRequest = new ItemLookupRequest();
@@ -86,7 +95,7 @@ public class ModuleAmazon extends IsbnModule {
     }
 
     @Override
-    protected void processQueryTerminate() {
+    protected void processQueryTerminate() throws IsbnModuleException {
         lookup.setAWSAccessKeyId(awsAccessKey);
         lookup.getRequest().add(itemRequest);
         lookup.setAssociateTag(associateTag);
@@ -95,17 +104,22 @@ public class ModuleAmazon extends IsbnModule {
         Holder<OperationRequest> operationrequest = new Holder<OperationRequest>();
         Holder<java.util.List<Items>> items = new Holder<java.util.List<Items>>();
         //itemLookup : MarketplaceDomain, AWSAccessKeyId, AssociateTag, XMLEscaping, Validate, Shared, Request, OperationRequest, Items
-        port.itemLookup(
-                lookup.getMarketplaceDomain(),
-                lookup.getAWSAccessKeyId(),
-                lookup.getAssociateTag(),
-                lookup.getXMLEscaping(),
-                lookup.getValidate(),
-                lookup.getShared(),
-                lookup.getRequest(),
-                operationrequest,
-                items);
-        processItemList(items.value);
+        try
+        {
+            port.itemLookup(
+                    lookup.getMarketplaceDomain(),
+                    lookup.getAWSAccessKeyId(),
+                    lookup.getAssociateTag(),
+                    lookup.getXMLEscaping(),
+                    lookup.getValidate(),
+                    lookup.getShared(),
+                    lookup.getRequest(),
+                    operationrequest,
+                    items);
+        } catch (Exception ex) {
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
+        }
+            processItemList(items.value);
     }
 
     @Override

@@ -4,10 +4,6 @@ package isbnsniff;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
@@ -18,13 +14,12 @@ public abstract class IsbnModule {
 
     private List<BookItem> bookItemList = new ArrayList();
     protected String moduleName = "unknown";
-    boolean enabled = false;
 
-    protected abstract void processQueryIsbn(BookItem nb);
+    protected abstract void processQueryIsbn(BookItem nb) throws IsbnModuleException;
 
-    protected abstract void processQueryInitialize();
+    protected abstract void processQueryInitialize() throws IsbnModuleException;
 
-    protected abstract void processQueryTerminate();
+    protected abstract void processQueryTerminate() throws IsbnModuleException;
     
     protected abstract void setConfigurationSpecific(SubnodeConfiguration sObj);
 
@@ -35,12 +30,17 @@ public abstract class IsbnModule {
         bookItemList.add(book);
     }
 
-    public void processQuery() {
-        processQueryInitialize();
-        for (BookItem book : bookItemList) {
-            processQueryIsbn(book);
+    public void processQuery() throws IsbnModuleException {
+        try {
+            processQueryInitialize();
+            for (BookItem book : bookItemList) {
+                processQueryIsbn(book);
+            }
+            processQueryTerminate();
+        } catch (IsbnModuleException ex) {
+            ex.setModuleName(moduleName);
+            throw ex;
         }
-        processQueryTerminate();
     }
 
     public List<BookItem> getBookItemList() {
@@ -60,17 +60,7 @@ public abstract class IsbnModule {
         return moduleName;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
     public void setConfiguration(SubnodeConfiguration sObj) {
-        try {
-            enabled = sObj.getBoolean("enable", enabled);
-        } catch (ConversionException e) {
-            //ERROR PARSING ERROR CHECK
-            //Logger.getLogger(IsbnModule.class.getName()).log(Level.SEVERE, null, e);            
-        }
         setConfigurationSpecific(sObj);
     }
 }

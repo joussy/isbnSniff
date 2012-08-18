@@ -5,8 +5,11 @@ package EngineBookShare;
 import EngineBookShare.Bookshare.Book.Metadata;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
+import isbnsniff.IsbnModuleException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.rmi.UnmarshalException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -22,18 +25,18 @@ public class ModuleBookshare extends IsbnModule {
     final static String MODULE_NAME = "Bookshare";
     private String accessKey;
     private Unmarshaller unmarshaller = null;
-    public ModuleBookshare()
+    public ModuleBookshare() throws IsbnModuleException
     {
         moduleName = MODULE_NAME;
         try {
             JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class, Bookshare.class);
             unmarshaller = jc.createUnmarshaller();
         } catch (JAXBException ex) {
-            Logger.getLogger(ModuleBookshare.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
     }
     @Override
-    protected void processQueryIsbn(BookItem book) {
+    protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         URL query = null;
         Bookshare bookshareXml = null;
         String path = "http://api.bookshare.org/book/isbn/"
@@ -42,12 +45,12 @@ public class ModuleBookshare extends IsbnModule {
         try {
             query = new URL(path);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(ModuleBookshare.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
         }
         try {
             bookshareXml = (Bookshare)unmarshaller.unmarshal(query);
         } catch (JAXBException ex) {
-            Logger.getLogger(ModuleBookshare.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
         processBookshareTree(bookshareXml, book);
     }

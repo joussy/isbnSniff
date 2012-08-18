@@ -11,9 +11,8 @@ import com.google.api.services.books.model.Volume;
 import com.google.api.services.books.model.Volumes;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
+import isbnsniff.IsbnModuleException;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class ModuleGoogleBooks extends IsbnModule {
@@ -27,19 +26,19 @@ public class ModuleGoogleBooks extends IsbnModule {
     }
 
     @Override
-    protected void processQueryIsbn(BookItem book) {
+    protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         String query = "isbn:" + book.getIsbn().getIsbn13();
         List volumesList = null;
         try {
             volumesList = books.volumes().list(query);
         } catch (IOException ex) {
-            Logger.getLogger(ModuleGoogleBooks.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
         }
         Volumes volumes = null;
         try {
             volumes = volumesList.execute();
         } catch (IOException ex) {
-            Logger.getLogger(ModuleGoogleBooks.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
         }
         if (volumes.getTotalItems() == 0 || volumes.getItems() == null) {
             return;
@@ -70,6 +69,7 @@ public class ModuleGoogleBooks extends IsbnModule {
     protected void processQueryInitialize() {
         JsonHttpRequestInitializer credential = new GoogleKeyInitializer(accessKey);
         // Set up Books client.
+
         JsonFactory jsonFactory = new JacksonFactory();
         books = new Books.Builder(new NetHttpTransport(), jsonFactory, null).setApplicationName("Google-BooksSample/1.0").setJsonHttpRequestInitializer(credential).build();
     }

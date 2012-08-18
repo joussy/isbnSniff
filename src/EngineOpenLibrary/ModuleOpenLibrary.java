@@ -3,17 +3,13 @@
 package EngineOpenLibrary;
 
 import com.fasterxml.jackson.databind.*;
-import com.meterware.httpunit.*;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
-import java.io.File;
+import isbnsniff.IsbnModuleException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.configuration.SubnodeConfiguration;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -21,14 +17,12 @@ import org.xml.sax.SAXException;
  */
 public class ModuleOpenLibrary extends IsbnModule {
     final static String MODULE_NAME = "OpenLibrary";
-    private WebConversation wc = null;
     public ModuleOpenLibrary()
     {
         moduleName = MODULE_NAME;
-        HttpUnitOptions.setScriptingEnabled(false);
-    }    
+    }
     @Override
-    protected void processQueryIsbn(BookItem book)
+    protected void processQueryIsbn(BookItem book) throws IsbnModuleException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -38,23 +32,22 @@ public class ModuleOpenLibrary extends IsbnModule {
             jsonQ = new URL("http://openlibrary.org/api/books.json?format=json&jscmd=data&bibkeys=ISBN:"
                 + book.getIsbn().getIsbn13());
         } catch (MalformedURLException ex) {
-            Logger.getLogger(ModuleOpenLibrary.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
         }
         try
         {
             olj = mapper.readValue(jsonQ, OpenLibraryJson.class);
         }
         catch (JsonMappingException ex) {
-            Logger.getLogger(ModuleOpenLibrary.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
         catch (IOException ex) {
-            Logger.getLogger(ModuleOpenLibrary.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
         processJSON(book, olj);
     }
     @Override
     protected void processQueryInitialize() {
-        wc = new WebConversation();
     }
     @Override
     protected void processQueryTerminate() {

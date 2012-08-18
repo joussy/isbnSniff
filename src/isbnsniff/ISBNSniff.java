@@ -1,81 +1,91 @@
-/*
- */
 package isbnsniff;
+
 import EngineOpenLibrary.ModuleOpenLibrary;
 import EngineLibraryThing.ModuleLibraryThing;
 import EngineGoogleBooks.ModuleGoogleBooks;
 import EngineBookShare.ModuleBookshare;
 import EngineAmazon.ModuleAmazon;
 import EngineIsbnDb.ModuleIsbndb;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.cli.ParseException;
 
 /**
  *
  * @author jousse_s
  */
-
-/*
-    public static final String KEY = "e7aaceb52f476adcb08072a98e2a02ad";
-    public static final String ISBN = "0061031321";
-    public void connectionXML() {
-        HttpUnitOptions.setScriptingEnabled(false);
-        WebConversation wc = new WebConversation();
-        WebRequest req = new GetMethodWebRequest(
-            "http://www.librarything.com/services/rest/1.1/?method=librarything.ck.getwork&isbn="
-            + ISBN + "&apikey=" + KEY);
-        WebResponse resp;
-        try {
-            resp = wc.getResponse(req);
-            System.out.println(resp.getText());
-            //resp.getDOM();
-        } catch (IOException ex) {
-            Logger.getLogger(ISBNSniff.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
-            Logger.getLogger(ISBNSniff.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-    }
- */
-
 public class ISBNSniff {
+
     public static void main(String[] args) {
-        ConfigurationParser configurationParser =
-                new ConfigurationParser(new File("src/isbnsniff/conf.ini"));
-        IsbnInput in = null;
+        List<IsbnModule> moduleList = new ArrayList();
         try {
-            in = new IsbnInputCsv(new FileInputStream(new File("src/isbnsniff/example.csv")));
-            in.parseStream();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(ISBNSniff.class.getName()).log(Level.SEVERE, null, ex);
+            moduleList.add(new ModuleIsbndb());
+            moduleList.add(new ModuleGoogleBooks());
+            moduleList.add(new ModuleAmazon());
+            moduleList.add(new ModuleLibraryThing());
+            moduleList.add(new ModuleBookshare());
+            moduleList.add(new ModuleOpenLibrary());
+        } catch (IsbnModuleException ex) {
+            System.err.println("Fatal Error: " + ex.getModuleName() + " Engine initialization has failed: " + ex.getMessage());
+            System.err.println("Please de-activate this module.");
+            System.out.println("Aborting ...");
+            return;
         }
-        SearchEngine sEngine = new SearchEngine(configurationParser);
-
-        sEngine.addIsbnModule(new ModuleIsbndb());
-        sEngine.addIsbnModule(new ModuleGoogleBooks());
-        sEngine.addIsbnModule(new ModuleAmazon());
-        sEngine.addIsbnModule(new ModuleLibraryThing());
-        sEngine.addIsbnModule(new ModuleBookshare());
-        sEngine.addIsbnModule(new ModuleOpenLibrary());
-
-        sEngine.setIsbnList(in.getIsbnList());
-//        sEngine.addIsbn(new IsbnNumber("9781934356005"));//Erlang
-//        sEngine.addIsbn(new IsbnNumber("9780061031328"));//Terry pratchet
-//        sEngine.addIsbn(new IsbnNumber("9780590353403"));//Harry potter
-//        sEngine.addIsbn(new IsbnNumber("9781459235908")); //Her Better Half
-//        sEngine.addIsbn(new IsbnNumber("9780373881093")); //Her Better Half
-        
-        sEngine.processConfiguration();
-        sEngine.printValuesPriority();
+        CliInterpreter cli;
+        try {
+            cli = new CliInterpreter(args, moduleList);
+        } catch (ParseException ex) {
+            System.out.println("Command Line Error, " + ex.getMessage());
+            System.out.println("Aborting ...");
+            return;
+        }
+        IsbnInput input = cli.generateIsbnInput();
+        IsbnOutput output = cli.generateIsbnOutput();
+        if (input == null || output == null) {
+            return;
+        }
+        try {
+            input.parseStream();
+        } catch (IOException ex) {
+            System.err.println("Output Error: " + ex.getMessage());
+        } catch (IsbnFormatException ex) {
+            System.out.println(input.getIOName() + ": " + ex.getMessage()
+                    + "(Isbn:" + ex.getIsbn() + ")");
+            System.out.println("Aborting ...");
+            return;
+        }
+        ConfigurationParser cfgParser = null;
+        try {
+            cfgParser = new ConfigurationParser(
+                    cli.getConfigurationFile(), moduleList, output);
+        } catch (ConfigurationParserExceptionList ex) {
+            for (ConfigurationParserException i : ex.getErrorList())
+            {
+                System.out.println("Configuration File Error: "
+                        + i.getMessage());
+            }
+            System.out.println("Aborting ...");
+            return;
+        }
+        SearchEngine sEngine = cfgParser.generateSearchEngine();
+        for (IsbnNumber nb : input.getIsbnList()) {
+            System.out.println("ISBN=" + nb.getIsbn13());
+        }
+        sEngine.setIsbnList(input.getIsbnList());
         sEngine.performSearch();
+        sEngine.debugPrintModuleResults();
         sEngine.mergeResults();
-        sEngine.printModuleResults();
-        sEngine.printResults();
-        
-        IsbnOutput output = new IsbnOutputXml(new File("output.xml"));
         output.setBookList(sEngine.getResults());
-        output.writeOutput();
+        try {
+            output.writeOutput();
+        } catch (FileNotFoundException ex) {
+            System.err.println("Output Error: " + ex.getMessage());
+        } catch (IOException ex) {
+            System.err.println("Output Error: " + ex.getMessage());
+        }
     }
 }

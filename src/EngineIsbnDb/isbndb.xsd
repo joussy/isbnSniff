@@ -3,6 +3,7 @@
   <xs:element name="ISBNdb">
     <xs:complexType>
       <xs:sequence>
+        <xs:element name="ErrorMessage" type="xs:string" />
         <xs:element name="BookList">
           <xs:complexType>
             <xs:sequence>

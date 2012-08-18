@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
@@ -24,41 +26,36 @@ public class SearchEngine {
     private Map<String, List<IsbnModule>> valuesPriority = new HashMap();
     private ConfigurationParser cParser = null;
 
-    public SearchEngine(ConfigurationParser value) {
-        cParser = value;
+    public SearchEngine(List<IsbnModule> pList,
+            Map<String, List<IsbnModule>> vPriority) {
+        priorityList = pList;
+        valuesPriority = vPriority;
     }
-
-    public void processConfiguration() {
-        processModuleConfiguration();
-        processGeneralConfiguration();
-        processValuesConfiguration();
-    }
-
-    public void setPriorityList(List<IsbnModule> value) {
-        priorityList = value;
-    }
-    
-    public void setValuesPriority(Map<String, List<IsbnModule>> value)
-    {
-        valuesPriority = value;
-    }
-    
+    /*
     private void processGeneralConfiguration() {
-        HierarchicalConfiguration generalSection = cParser.getIniConf().getSection("general");
-        priorityList = ConfigurationParser.getModuleListFromParam(
-                generalSection, "module_priority", moduleList);
+    HierarchicalConfiguration generalSection = cParser.getIniConf().getSection("general");
+    priorityList = ConfigurationParser.getModuleListFromParam(
+    generalSection, "module_priority", moduleList);
     }
-
+    
     private void processValuesConfiguration() {
-        HierarchicalConfiguration valuesSection = cParser.getIniConf().getSection("values");
-        Iterator it = valuesSection.getKeys();
-        while (it.hasNext())
-        {
-            String key = (String) it.next();
-            valuesPriority.put(key, ConfigurationParser.getModuleListFromParam(
-                valuesSection, key, moduleList));
-        }
+    HierarchicalConfiguration valuesSection = cParser.getIniConf().getSection("values");
+    Iterator it = valuesSection.getKeys();
+    while (it.hasNext())
+    {
+    String key = (String) it.next();
+    valuesPriority.put(key, ConfigurationParser.getModuleListFromParam(
+    valuesSection, key, moduleList));
     }
+    }
+    
+    private void processModuleConfiguration() {
+    for (IsbnModule module : moduleList) {
+    SubnodeConfiguration sObj = cParser.getIniConf().getSection(module.getModuleName());
+    module.setConfiguration(sObj);
+    }
+    }
+     */
 
     public void performSearch() {
         System.out.print("Processing: ");
@@ -67,20 +64,24 @@ public class SearchEngine {
                 module.addBookItem(new BookItem(isbn));
             }
             System.out.print(", " + module.getModuleName());
-            module.processQuery();
+            try {
+                module.processQuery();
+            } catch (IsbnModuleException ex) {
+                System.err.println(ex.getModuleName() + " Engine Error: " + ex.getMessage());
+            }
         }
         System.out.println();
     }
 
     /*
     public void mergeResults() {
-        for (IsbnNumber isbn : isbnList) {
-            BookItem book = new BookItem(isbn);
-            for (IsbnModule module : priorityList) {
-                book.automaticMerge(module.getBookItem(isbn), valuesPriority);
-            }
-            bookResult.add(book);
-        }
+    for (IsbnNumber isbn : isbnList) {
+    BookItem book = new BookItem(isbn);
+    for (IsbnModule module : priorityList) {
+    book.automaticMerge(module.getBookItem(isbn), valuesPriority);
+    }
+    bookResult.add(book);
+    }
     }
      * 
      */
@@ -92,13 +93,13 @@ public class SearchEngine {
             }
             for (Entry<String, List<IsbnModule>> entry : valuesPriority.entrySet()) {
                 book.setValue(entry.getKey(), null);
-                for (IsbnModule module : entry.getValue())
-                {
-                    Object value = module.getBookItem(isbn).getValue(entry.getKey());
-                    if (value != null)
-                    {
-                        book.setValue(entry.getKey(), value);
-                        break;
+                for (IsbnModule module : entry.getValue()) {
+                    if (priorityList.contains(module)) {
+                        Object value = module.getBookItem(isbn).getValue(entry.getKey());
+                        if (value != null) {
+                            book.setValue(entry.getKey(), value);
+                            break;
+                        }
                     }
                 }
             }
@@ -120,40 +121,25 @@ public class SearchEngine {
     }
      */
 
-    public void addIsbn(IsbnNumber isbn) {
-        if (!isbnList.contains(isbn)) {
-            isbnList.add(isbn);
-        }
-    }
-    public void setIsbnList(List<IsbnNumber> value)
-    {
-        for (IsbnNumber isbn : value)
-        {
-            addIsbn(isbn);
+    public void setIsbnList(List<IsbnNumber> value) {
+        for (IsbnNumber isbn : value) {
+            if (!isbnList.contains(isbn)) {
+                isbnList.add(isbn);
+            }
         }
     }
 
-    public void printResults() {
-        System.out.println("/--MergedResults");
-        for (BookItem book : bookResult) {
-            System.out.println("Title=" + book.getTitle()
-                    + ", NbPages=" + book.getNbPages()
-                    + ", Isbn=" + book.getIsbn().getIsbn13());
-        }
-    }
-
-    public void printValuesPriority() {
-        for (Entry<String, List<IsbnModule>> entry : valuesPriority.entrySet())
-        {
-            System.out.print("value=" + entry.getKey()+ " Priority=");
-            for (IsbnModule module : entry.getValue())
-            {
+    public void debugPrintValuesPriority() {
+        for (Entry<String, List<IsbnModule>> entry : valuesPriority.entrySet()) {
+            System.out.print("value=" + entry.getKey() + " Priority=");
+            for (IsbnModule module : entry.getValue()) {
                 System.out.print(module.getModuleName() + ", ");
             }
             System.out.println();
         }
     }
-    public void printModuleResults() {
+
+    public void debugPrintModuleResults() {
         for (IsbnModule module : priorityList) {
             System.out.println("/--" + module.getModuleName());
             for (BookItem book : module.getBookItemList()) {
@@ -165,13 +151,6 @@ public class SearchEngine {
         }
     }
 
-    private void processModuleConfiguration() {
-        for (IsbnModule module : moduleList) {
-            SubnodeConfiguration sObj = cParser.getIniConf().getSection(module.getModuleName());
-            module.setConfiguration(sObj);
-        }
-    }
-    
     public List<BookItem> getResults() {
         return bookResult;
     }

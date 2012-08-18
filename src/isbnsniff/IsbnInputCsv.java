@@ -2,11 +2,15 @@
  */
 package isbnsniff;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.csv.*;
 import org.apache.commons.csv.CSVParser;
 
@@ -14,23 +18,28 @@ import org.apache.commons.csv.CSVParser;
  *
  * @author jousse_s
  */
-public class IsbnInputCsv extends IsbnInput {
-    public IsbnInputCsv(InputStream s)
+final public class IsbnInputCsv extends IsbnInput {
+    final static private String mName = "csv";
+    Reader reader = null;
+    public IsbnInputCsv(File file) throws FileNotFoundException
     {
-        super(s);
+        super(mName);
+        reader = new FileReader(file);
     }
-    @Override
-    public void parseStream()
+    
+    public IsbnInputCsv(String value)
     {
-        StringReader reader = new StringReader(getInputString());
+        super(mName);
+        reader = new StringReader(value);
+    }
+
+    @Override
+    public void parseStream() throws IOException, IsbnFormatException
+    {
         //CSVParser parser = new CSVParser(reader, CSVStrategy.EXCEL_STRATEGY);
         CSVParser parser = new CSVParser(reader, new CSVStrategy(',','"','#', true, true, true));
         String[][] data = null;
-        try {
-            data = parser.getAllValues();
-        } catch (IOException ex) {
-            Logger.getLogger(IsbnInputCsv.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        data = parser.getAllValues();
         for (String[] line : data) {
             for (int i = 0; i < line.length; i++) {
                 if (line[i].length() > 0)
@@ -40,5 +49,9 @@ public class IsbnInputCsv extends IsbnInput {
                 }
             }
         }
+    }
+
+    @Override
+    public void setConfiguration(SubnodeConfiguration cNode) {
     }
 }

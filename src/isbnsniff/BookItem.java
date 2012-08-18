@@ -15,15 +15,18 @@ import java.util.Set;
  * @author jousse_s
  */
 public class BookItem {
-    final public String A_NBPAGES = "nbpages";
-    final public String A_TITLE = "title";
-    final public String A_AUTHOR = "authors";
-    final public String A_PUBLISHER = "publisher";
-    final public String A_PUBLICATION_DATE = "publication_date";
-    final public String A_DESCRIPTION = "description";
-    final public String A_DIMENSIONS = "dimensions";
-    final public String A_LANGUAGE = "language";
-    final public String A_CATEGORIES = "categories";
+    final public static String A_NBPAGES = "nbpages";
+    final public static String A_TITLE = "title";
+    final public static String A_AUTHOR = "authors";
+    final public static String A_PUBLISHER = "publisher";
+    final public static String A_PUBLICATION_DATE = "publication_date";
+    final public static String A_DESCRIPTION = "description";
+    final public static String A_DIMENSIONS = "dimensions";
+    final public static String A_LANGUAGE = "language";
+    final public static String A_CATEGORIES = "categories";
+    final public static String[] KEY_LIST = {A_NBPAGES, A_TITLE, A_AUTHOR,
+        A_PUBLISHER, A_PUBLICATION_DATE, A_DESCRIPTION, A_DIMENSIONS,
+        A_LANGUAGE, A_CATEGORIES};
     IsbnNumber isbn;
     Integer weight;
     List<String> authorList = new ArrayList();

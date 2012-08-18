@@ -18,23 +18,25 @@ import java.util.logging.Logger;
  *
  * @author jousse_s
  */
-public abstract class IsbnInput {
+public abstract class IsbnInput extends IsbnIO {
     List<IsbnNumber> isbnList = new ArrayList();
     InputStream iStream = null;
-    protected abstract void parseStream();
-    public IsbnInput(InputStream s)
+    protected abstract void parseStream() throws IOException, IsbnFormatException;
+    public IsbnInput(String name)
     {
-        iStream = s;
+        super(name);
     }
+        
     public List<IsbnNumber> getIsbnList()
     {
         return isbnList;
     }
-    protected String getInputString()
+/*
+    static protected String getInputString()
     {
         String read = null;
         try {
-            InputStream in = iStream;
+            InputStream in = null; // should be something else ...
             InputStreamReader is = new InputStreamReader(in);
             StringBuilder sb = new StringBuilder();
             BufferedReader br = new BufferedReader(is);
@@ -50,4 +52,6 @@ public abstract class IsbnInput {
         }
         return read;
     }
+     * 
+     */
 }

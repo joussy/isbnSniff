@@ -2,7 +2,6 @@
  */
 package isbnsniff;
 
-import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,17 +10,18 @@ import java.util.regex.Pattern;
  * @author jousse_s
  */
 public class IsbnNumber {
+
     private Integer ean = 0;
     private Integer body = 0;
     private Integer checkDigit = 0;
     public IsbnNumber()
     {
     }
-    public IsbnNumber(String number)
+    public IsbnNumber(String number) throws IsbnFormatException
     {
         setIsbnNumber(number);
     }
-    public final void setIsbnNumber(String number)
+    public final void setIsbnNumber(String number) throws IsbnFormatException
     {
         if (number == null)
             return;
@@ -32,6 +32,9 @@ public class IsbnNumber {
             ean = Integer.parseInt(m.group(1));
             body = Integer.parseInt(m.group(2));
             checkDigit = Integer.parseInt(m.group(3));
+            if (getIsbnCheckDigit(false) != checkDigit)
+                throw new IsbnFormatException(
+                        IsbnFormatException.ERR_CHECK_DIGIT, number);
         }
         else
         {
@@ -45,7 +48,13 @@ public class IsbnNumber {
                     checkDigit = Integer.parseInt(m.group(2));
                 else
                     checkDigit = 10;
+                if (getIsbnCheckDigit(true) != checkDigit)
+                throw new IsbnFormatException(
+                        IsbnFormatException.ERR_CHECK_DIGIT, number);
             }
+            else
+                throw new IsbnFormatException(
+                        IsbnFormatException.ERR_FORMAT, number);
         }
     }
  @Override

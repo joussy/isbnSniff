@@ -4,6 +4,15 @@
   <xs:element name="response">
     <xs:complexType>
       <xs:sequence>
+        <xs:element name="err">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="code" type="xs:unsignedByte" use="required" />
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
         <xs:element xmlns:q1="http://www.librarything.com/" ref="q1:ltml" />
       </xs:sequence>
       <xs:attribute name="stat" type="xs:string" use="required" />

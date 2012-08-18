@@ -1,12 +1,11 @@
 /*
  */
-
 package EngineIsbnDb;
-
 
 import EngineIsbnDb.ISBNdb.BookList.BookData;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
+import isbnsniff.IsbnModuleException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
@@ -18,27 +17,28 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
-
 /**
  *
  * @author jousse_s
  */
 public class ModuleIsbndb extends IsbnModule {
+
     final static String MODULE_NAME = "IsbnDb";
     private String accessKey;
     private Unmarshaller unmarshaller = null;
-    public ModuleIsbndb()
-    {
+
+    public ModuleIsbndb() throws IsbnModuleException {
         moduleName = MODULE_NAME;
         try {
             JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class, ISBNdb.class);
             unmarshaller = jc.createUnmarshaller();
         } catch (JAXBException ex) {
-            Logger.getLogger(ISBNdb.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
     }
+
     @Override
-    protected void processQueryIsbn(BookItem book) {
+    protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         URL query = null;
         ISBNdb isbndbXml = null;
         String path = "http://isbndb.com/api/books.xml?"
@@ -51,15 +51,16 @@ public class ModuleIsbndb extends IsbnModule {
         try {
             query = new URL(path);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(ModuleIsbndb.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
         }
         try {
-            isbndbXml = (ISBNdb)unmarshaller.unmarshal(query);
+            isbndbXml = (ISBNdb) unmarshaller.unmarshal(query);
         } catch (JAXBException ex) {
-            Logger.getLogger(ModuleIsbndb.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
         }
         processIsbndbTree(isbndbXml, book);
     }
+
     @Override
     protected void processQueryInitialize() {
     }
@@ -68,19 +69,21 @@ public class ModuleIsbndb extends IsbnModule {
     protected void processQueryTerminate() {
     }
 
-    private void processIsbndbTree(ISBNdb isbndbXml, BookItem book) {
-        if (isbndbXml != null)
-            if (isbndbXml.getBookList() != null)
-                if (isbndbXml.getBookList().getBookData() != null)
-                {
-                    BookData bookXml = isbndbXml.getBookList().getBookData();
-                    book.setTitle(bookXml.getTitle());
-                    processDetailsPhysicalDescription(book,
-                            bookXml.getDetails().getPhysicalDescriptionText());
-                }
+    private void processIsbndbTree(ISBNdb isbndbXml, BookItem book) throws IsbnModuleException {
+        if (isbndbXml == null) {
+            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, "No BookList");
+        }
+        if (isbndbXml.getBookList() == null)
+            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, isbndbXml.getErrorMessage());
+        if (isbndbXml.getBookList().getBookData() != null) {
+            BookData bookXml = isbndbXml.getBookList().getBookData();
+            book.setTitle(bookXml.getTitle());
+            processDetailsPhysicalDescription(book,
+                    bookXml.getDetails().getPhysicalDescriptionText());
+        }
     }
-    private void processDetailsPhysicalDescription(BookItem book, String attributeValue)
-    {
+
+    private void processDetailsPhysicalDescription(BookItem book, String attributeValue) {
         Pattern p = Pattern.compile("([0-9]+) (p\\.|pages)");
         Matcher m = p.matcher(attributeValue);
         if (m.find()) {
