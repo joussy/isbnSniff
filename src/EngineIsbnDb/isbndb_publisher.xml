@@ -1,0 +1,14 @@
+﻿<ISBNdb server_time="2012-08-19T16:32:13Z">
+<PublisherList total_results="1" page_size="10" page_number="1" shown_results="1">
+  <PublisherData publisher_id="yale_university_press">
+    <Name>
+      Yale University Press
+    </Name>
+    <Categories>
+      <Category category_id="alphabetically.publishers.y">
+        Y
+      </Category>
+    </Categories>
+  </PublisherData>
+</PublisherList>
+</ISBNdb>

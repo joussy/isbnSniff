@@ -11,12 +11,16 @@ import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
@@ -83,6 +87,9 @@ public class ModuleLibraryThing extends IsbnModule {
         }
         if (libraryThingXML.getLtml().getItem() != null) {
             Item bookItem = libraryThingXML.getLtml().getItem();
+            if (bookItem.getAuthor() != null) {
+                book.addAuthor(bookItem.getAuthor().getValue());
+            }
             processCommonKnowledge(bookItem, book);
         }
     }
@@ -91,6 +98,21 @@ public class ModuleLibraryThing extends IsbnModule {
         if (bookItem.getCommonknowledge() != null) {
             FieldList fieldList = bookItem.getCommonknowledge().getFieldList();
             book.setTitle(getCommonKnowledgeFact(fieldList, "canonicaltitle"));
+            book.setSynopsis(getCommonKnowledgeFact(fieldList, "description"));
+            //PublicationDate
+            String publicationDate =
+                    getCommonKnowledgeFact(fieldList, "originalpublicationdate");
+            if (publicationDate != null)
+            {
+                Pattern p = Pattern.compile("[0-9]{4}");
+                Matcher m = p.matcher(publicationDate);
+                if (m.find()) {
+                    try {
+                        book.setPublicationDate(new SimpleDateFormat("yyyy").parse(m.group()));
+                    } catch (ParseException ex) {
+                    }
+                }
+            }
         }
         //bookItem.getCommonknowledge().getFieldList().getField().get(0).getVersionList().getVersion().getFactList().getFact()
     }

@@ -124,12 +124,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "bookList"
 })
 @XmlRootElement(name = "ISBNdb")
-public class ISBNdb {
+public class ISBNdbBooks {
 
     @XmlElement(name = "ErrorMessage", required = true)
     protected String errorMessage;
     @XmlElement(name = "BookList", required = true)
-    protected ISBNdb.BookList bookList;
+    protected ISBNdbBooks.BookList bookList;
     @XmlAttribute(name = "server_time", required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar serverTime;
@@ -163,10 +163,10 @@ public class ISBNdb {
      * 
      * @return
      *     possible object is
-     *     {@link ISBNdb.BookList }
+     *     {@link ISBNdbBooks.BookList }
      *     
      */
-    public ISBNdb.BookList getBookList() {
+    public ISBNdbBooks.BookList getBookList() {
         return bookList;
     }
 
@@ -175,10 +175,10 @@ public class ISBNdb {
      * 
      * @param value
      *     allowed object is
-     *     {@link ISBNdb.BookList }
+     *     {@link ISBNdbBooks.BookList }
      *     
      */
-    public void setBookList(ISBNdb.BookList value) {
+    public void setBookList(ISBNdbBooks.BookList value) {
         this.bookList = value;
     }
 
@@ -298,7 +298,7 @@ public class ISBNdb {
     public static class BookList {
 
         @XmlElement(name = "BookData", required = true)
-        protected ISBNdb.BookList.BookData bookData;
+        protected ISBNdbBooks.BookList.BookData bookData;
         @XmlAttribute(name = "total_results", required = true)
         @XmlSchemaType(name = "unsignedByte")
         protected short totalResults;
@@ -317,10 +317,10 @@ public class ISBNdb {
          * 
          * @return
          *     possible object is
-         *     {@link ISBNdb.BookList.BookData }
+         *     {@link ISBNdbBooks.BookList.BookData }
          *     
          */
-        public ISBNdb.BookList.BookData getBookData() {
+        public ISBNdbBooks.BookList.BookData getBookData() {
             return bookData;
         }
 
@@ -329,10 +329,10 @@ public class ISBNdb {
          * 
          * @param value
          *     allowed object is
-         *     {@link ISBNdb.BookList.BookData }
+         *     {@link ISBNdbBooks.BookList.BookData }
          *     
          */
-        public void setBookData(ISBNdb.BookList.BookData value) {
+        public void setBookData(ISBNdbBooks.BookList.BookData value) {
             this.bookData = value;
         }
 
@@ -491,15 +491,15 @@ public class ISBNdb {
             @XmlElement(name = "AuthorsText", required = true)
             protected String authorsText;
             @XmlElement(name = "PublisherText", required = true)
-            protected ISBNdb.BookList.BookData.PublisherText publisherText;
+            protected ISBNdbBooks.BookList.BookData.PublisherText publisherText;
             @XmlElement(name = "Details", required = true)
-            protected ISBNdb.BookList.BookData.Details details;
+            protected ISBNdbBooks.BookList.BookData.Details details;
             @XmlElement(name = "Summary", required = true)
             protected String summary;
             @XmlElement(name = "Notes", required = true)
             protected String notes;
             @XmlElement(name = "Authors", required = true)
-            protected ISBNdb.BookList.BookData.Authors authors;
+            protected ISBNdbBooks.BookList.BookData.Authors authors;
             @XmlAttribute(name = "book_id", required = true)
             protected String bookId;
             @XmlAttribute(required = true)
@@ -585,10 +585,10 @@ public class ISBNdb {
              * 
              * @return
              *     possible object is
-             *     {@link ISBNdb.BookList.BookData.PublisherText }
+             *     {@link ISBNdbBooks.BookList.BookData.PublisherText }
              *     
              */
-            public ISBNdb.BookList.BookData.PublisherText getPublisherText() {
+            public ISBNdbBooks.BookList.BookData.PublisherText getPublisherText() {
                 return publisherText;
             }
 
@@ -597,10 +597,10 @@ public class ISBNdb {
              * 
              * @param value
              *     allowed object is
-             *     {@link ISBNdb.BookList.BookData.PublisherText }
+             *     {@link ISBNdbBooks.BookList.BookData.PublisherText }
              *     
              */
-            public void setPublisherText(ISBNdb.BookList.BookData.PublisherText value) {
+            public void setPublisherText(ISBNdbBooks.BookList.BookData.PublisherText value) {
                 this.publisherText = value;
             }
 
@@ -609,10 +609,10 @@ public class ISBNdb {
              * 
              * @return
              *     possible object is
-             *     {@link ISBNdb.BookList.BookData.Details }
+             *     {@link ISBNdbBooks.BookList.BookData.Details }
              *     
              */
-            public ISBNdb.BookList.BookData.Details getDetails() {
+            public ISBNdbBooks.BookList.BookData.Details getDetails() {
                 return details;
             }
 
@@ -621,10 +621,10 @@ public class ISBNdb {
              * 
              * @param value
              *     allowed object is
-             *     {@link ISBNdb.BookList.BookData.Details }
+             *     {@link ISBNdbBooks.BookList.BookData.Details }
              *     
              */
-            public void setDetails(ISBNdb.BookList.BookData.Details value) {
+            public void setDetails(ISBNdbBooks.BookList.BookData.Details value) {
                 this.details = value;
             }
 
@@ -681,10 +681,10 @@ public class ISBNdb {
              * 
              * @return
              *     possible object is
-             *     {@link ISBNdb.BookList.BookData.Authors }
+             *     {@link ISBNdbBooks.BookList.BookData.Authors }
              *     
              */
-            public ISBNdb.BookList.BookData.Authors getAuthors() {
+            public ISBNdbBooks.BookList.BookData.Authors getAuthors() {
                 return authors;
             }
 
@@ -693,10 +693,10 @@ public class ISBNdb {
              * 
              * @param value
              *     allowed object is
-             *     {@link ISBNdb.BookList.BookData.Authors }
+             *     {@link ISBNdbBooks.BookList.BookData.Authors }
              *     
              */
-            public void setAuthors(ISBNdb.BookList.BookData.Authors value) {
+            public void setAuthors(ISBNdbBooks.BookList.BookData.Authors value) {
                 this.authors = value;
             }
 
@@ -807,7 +807,7 @@ public class ISBNdb {
             public static class Authors {
 
                 @XmlElement(name = "Person", required = true)
-                protected List<ISBNdb.BookList.BookData.Authors.Person> person;
+                protected List<ISBNdbBooks.BookList.BookData.Authors.Person> person;
 
                 /**
                  * Gets the value of the person property.
@@ -827,13 +827,13 @@ public class ISBNdb {
                  * 
                  * <p>
                  * Objects of the following type(s) are allowed in the list
-                 * {@link ISBNdb.BookList.BookData.Authors.Person }
+                 * {@link ISBNdbBooks.BookList.BookData.Authors.Person }
                  * 
                  * 
                  */
-                public List<ISBNdb.BookList.BookData.Authors.Person> getPerson() {
+                public List<ISBNdbBooks.BookList.BookData.Authors.Person> getPerson() {
                     if (person == null) {
-                        person = new ArrayList<ISBNdb.BookList.BookData.Authors.Person>();
+                        person = new ArrayList<ISBNdbBooks.BookList.BookData.Authors.Person>();
                     }
                     return this.person;
                 }

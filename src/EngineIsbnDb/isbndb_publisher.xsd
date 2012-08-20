@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ISBNdb">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="PublisherList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="PublisherData">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Name" type="xs:string" />
+                    <xs:element name="Categories">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Category">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute name="category_id" type="xs:string" use="required" />
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="publisher_id" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="total_results" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="page_size" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="page_number" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="shown_results" type="xs:unsignedByte" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="server_time" type="xs:dateTime" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

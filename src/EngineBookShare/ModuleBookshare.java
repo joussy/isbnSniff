@@ -6,10 +6,12 @@ import EngineBookShare.Bookshare.Book.Metadata;
 import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.rmi.UnmarshalException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -69,6 +71,28 @@ public class ModuleBookshare extends IsbnModule {
                 {
                     Metadata d = bookshareXml.getBook().getMetadata();
                     book.setTitle(d.getTitle());
+                    /*
+                    if (d.getPublishDate() != null) {
+                        try {
+                            book.setPublicationDate(new SimpleDateFormat("MMddyyyy").parse(d.getPublishDate()));
+                        } catch (ParseException ex) {
+                        }
+                    }
+                     * 
+                     */
+                    book.setPublisher(d.getPublisher());
+                    if (d.getCompleteSynopsis() != null)
+                        book.setSynopsis(d.getCompleteSynopsis());
+                    else
+                        book.setSynopsis(d.getBriefSynopsis());
+                    if (d.getAuthor() != null) {
+                        for (String author : d.getAuthor())
+                            book.addAuthor(author);
+                    }
+                    if (d.getCategory() != null) {
+                        for (String category : d.getCategory())
+                            book.addCategory(category);
+                    }
                 }
     }
 

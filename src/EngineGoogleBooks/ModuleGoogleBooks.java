@@ -13,6 +13,8 @@ import isbnsniff.BookItem;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class ModuleGoogleBooks extends IsbnModule {
@@ -51,17 +53,24 @@ public class ModuleGoogleBooks extends IsbnModule {
         for (Volume volume : volumes.getItems()) {
             book.setTitle(volume.getVolumeInfo().getTitle());
             book.setNbPages(volume.getVolumeInfo().getPageCount());
-            /*
-            System.out.println("Author: ");
-            java.util.List<String> authors = volumeInfo.getAuthors();
-            if (authors != null && !authors.isEmpty()) {
-            System.out.print("Author(s): ");
-            for (int i = 0; i < authors.size(); ++i) {
-            System.out.print(authors.get(i));
+            if (volume.getVolumeInfo() != null) {
+                for (String author : volume.getVolumeInfo().getAuthors()) {
+                    book.addAuthor(author);
+                }
+                if (volume.getVolumeInfo().getCategories() != null) {
+                    for (String category : volume.getVolumeInfo().getCategories()) {
+                        book.addCategory(category);
+                    }
+                }
+                book.setSynopsis(volume.getVolumeInfo().getDescription());
+                String publicationDate = volume.getVolumeInfo().getPublishedDate();
+                if (publicationDate != null) {
+                    try {
+                        book.setPublicationDate(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate));
+                    } catch (ParseException ex) {
+                    }
+                }
             }
-            }
-             * 
-             */
         }
     }
 
@@ -79,7 +88,7 @@ public class ModuleGoogleBooks extends IsbnModule {
     }
 
     @Override
-    public void setConfigurationSpecific(SubnodeConfiguration sObj) {        
+    public void setConfigurationSpecific(SubnodeConfiguration sObj) {
         accessKey = sObj.getString("api_key", "undefined");
     }
 }

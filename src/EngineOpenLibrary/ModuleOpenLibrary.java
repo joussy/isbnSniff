@@ -9,6 +9,17 @@ import isbnsniff.IsbnModuleException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
@@ -60,6 +71,36 @@ public class ModuleOpenLibrary extends IsbnModule {
             return;
         book.setTitle(olj.getISBN().getTitle());
         book.setNbPages(olj.getISBN().getNumber_of_pages().intValue());
+        //LinkedHashMap t = (LinkedHashMap) olj.getISBN().getAuthors();
+        if (olj.getISBN().getAuthors() != null)
+        {
+            for (LinkedHashMap entry : (List<LinkedHashMap>) olj.getISBN().getAuthors()) {
+                book.addAuthor((String) entry.get("name"));
+            }
+        }
+        if (olj.getISBN().getPublish_date() != null) {
+            //DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+            Date publicationDate = null;
+            try {
+                //Date date = format.parse(olj.getISBN().getPublish_date());                
+                //book.setPublicationDate(date);
+                publicationDate = new SimpleDateFormat("MMMM dd, yyyy").parse(olj.getISBN().getPublish_date());
+
+            } catch (ParseException ex) {
+                try {
+                    publicationDate = new SimpleDateFormat("yyyy").parse(olj.getISBN().getPublish_date());
+                } catch (ParseException ex1) {
+                }
+            }
+            book.setPublicationDate(publicationDate);
+        }
+        if (olj.getISBN().getPublishers() != null)
+        {
+            for (LinkedHashMap entry : (List<LinkedHashMap>) olj.getISBN().getPublishers()) {
+                book.setPublisher((String) entry.get("name"));
+                break;
+            }
+        }
     }
 
     @Override

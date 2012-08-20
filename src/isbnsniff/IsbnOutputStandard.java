@@ -2,18 +2,8 @@
  */
 package isbnsniff;
 
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.text.DateFormat;
+import java.util.List;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
@@ -41,9 +31,39 @@ final public class IsbnOutputStandard extends IsbnOutput {
             if ((value = getValue(BookItem.A_NBPAGES, book)) != null) {
                 out += BookItem.A_NBPAGES + ": " + value + System.getProperty("line.separator");
             }
+            if (book.getLcc() != null) {
+                out += BookItem.A_LCC + ": " + book.getLcc() + System.getProperty("line.separator");
+            }
+            if (book.getAuthorList() != null) {
+                out += BookItem.A_AUTHORS + ": ";
+                for (String author : book.getAuthorList()) {
+                    out += author + ", ";
+                }
+                out += System.getProperty("line.separator");
+            }
+            if (book.getCategoryList() != null) {
+                out += BookItem.A_CATEGORIES + ": ";
+                for (String author : book.getCategoryList()) {
+                    out += author + ", ";
+                }
+                out += System.getProperty("line.separator");                
+            }
+            if (book.getPublicationDate() != null)
+            {
+                out += BookItem.A_PUBLICATION_DATE + ": " +
+                         DateFormat.getDateInstance(DateFormat.MEDIUM).
+                        format(book.getPublicationDate());
+                out += System.getProperty("line.separator");
+            }
+            if (book.getPublisher() != null)
+            {
+                out += BookItem.A_PUBLISHER + ": " + book.getPublisher() + System.getProperty("line.separator");
+            }
             System.out.print(out);
+            System.out.println("---------------------------");
         }
     }
+    
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

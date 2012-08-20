@@ -139,13 +139,19 @@ public class SearchEngine {
         }
     }
 
+    private String pA(String value) {
+        return value == null ? "" : value;
+    }
     public void debugPrintModuleResults() {
         for (IsbnModule module : priorityList) {
             System.out.println("/--" + module.getModuleName());
             for (BookItem book : module.getBookItemList()) {
-                System.out.println("Title=" + book.getTitle()
+                System.out.print("Title=" + pA(book.getTitle())
                         + ", NbPages=" + book.getNbPages()
                         + ", Isbn=" + book.getIsbn().getIsbn13());
+                if (book.getAuthorList() != null)
+                    System.out.print(", Authors=" + book.getAuthorList().toString());
+                System.out.println();
             }
             System.out.println("--/");
         }

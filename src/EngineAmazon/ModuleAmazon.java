@@ -15,8 +15,13 @@ import isbnsniff.IsbnFormatException;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import isbnsniff.IsbnNumber;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.ws.Holder;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
@@ -40,7 +45,6 @@ public class ModuleAmazon extends IsbnModule {
 
     private void processItemList(List<Items> l) {
         for (Items itemList : l) {
-            Request requestElement = itemList.getRequest();
             for (Item item : itemList.getItem()) {
                 List<IsbnNumber> amazonIsbnList = new ArrayList();
                 if (item.getItemAttributes() != null) {
@@ -63,10 +67,45 @@ public class ModuleAmazon extends IsbnModule {
                     }
                 }
                 if (book != null) {
-                    book.setTitle(item.getItemAttributes().getTitle());
-                    book.setNbPages(item.getItemAttributes().getNumberOfPages().intValue());
+                    processItem(item, book);
                 }
             }
+        }
+    }
+
+    private void processItem(Item item, BookItem book) {
+        if (item.getItemAttributes() != null) {
+            book.setTitle(item.getItemAttributes().getTitle());
+            if (item.getItemAttributes().getNumberOfPages() != null)
+                book.setNbPages(item.getItemAttributes().getNumberOfPages().intValue());
+            String publicationDateString = item.getItemAttributes().getPublicationDate();
+            if (publicationDateString != null) {
+                Date publicationDate = null;
+                try {
+                    publicationDate = new SimpleDateFormat("yyyy-MM-dd").parse(publicationDateString);
+                } catch (ParseException ex) {
+                    try {
+                        publicationDate = new SimpleDateFormat("yyyy-MM").parse(publicationDateString);
+                    } catch (ParseException ex2) {
+                        try {
+                            publicationDate = new SimpleDateFormat("yyyy").parse(publicationDateString);
+                        } catch (ParseException ex1) {
+                        }
+                    }
+               }
+                book.setPublicationDate(publicationDate);
+            }
+            if (item.getItemAttributes().getCategory() != null) {
+                for (String category : item.getItemAttributes().getCategory()) {
+                    book.addCategory(category);
+                }
+            }
+            if (item.getItemAttributes().getAuthor() != null) {
+                for (String category : item.getItemAttributes().getAuthor()) {
+                    book.addAuthor(category);
+                }
+            }
+            book.setPublisher(item.getItemAttributes().getPublisher());
         }
     }
 

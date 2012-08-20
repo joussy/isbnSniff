@@ -1,2 +1,10 @@
 /build/
 /nbproject/private/
+/tattletale/
+/test/
+/dist/
+/lol.xml
+/no_read_access.csv
+/no_write.xml
+/out2.xml
+/*.xml

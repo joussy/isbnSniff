@@ -11,7 +11,7 @@
               <xs:element name="metadata">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="author" type="xs:string" />
+                    <xs:element name="author" type="xs:string" maxOccurs="unbounded"/>
                     <xs:element name="available-to-download" type="xs:unsignedByte" />
                     <xs:element name="bookshare-id" type="xs:unsignedInt" />
                     <xs:element name="brief-synopsis" type="xs:string" />
@@ -23,10 +23,11 @@
                     <xs:element name="images" type="xs:unsignedByte" />
                     <xs:element name="isbn13" type="xs:unsignedLong" />
                     <xs:element name="language" type="xs:string" />
-                    <xs:element name="publish-date" type="xs:unsignedInt" />
+                    <xs:element name="publish-date" type="xs:string" />
                     <xs:element name="publisher" type="xs:string" />
                     <xs:element name="quality" type="xs:string" />
                     <xs:element name="title" type="xs:string" />
+                    <xs:element name="category" type="xs:string" maxOccurs="unbounded"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
