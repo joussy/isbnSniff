@@ -21,7 +21,7 @@ import org.apache.commons.cli.ParseException;
 public class ISBNSniff {
 
     public static void main(String[] args) {
-        List<IsbnModule> moduleList = new ArrayList();
+        List<IsbnModule> moduleList = new ArrayList<IsbnModule>();
         try {
             moduleList.add(new ModuleIsbndb());
             moduleList.add(new ModuleGoogleBooks());
@@ -73,7 +73,7 @@ public class ISBNSniff {
         }
         SearchEngine sEngine = cfgParser.generateSearchEngine();
         for (IsbnNumber nb : input.getIsbnList()) {
-            System.out.println("ISBN=" + nb.getIsbn13());
+            //System.out.println("ISBN=" + nb.getIsbn13());
         }
         sEngine.setIsbnList(input.getIsbnList());
         sEngine.performSearch();

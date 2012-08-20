@@ -14,7 +14,7 @@ import org.w3c.dom.NodeList;
 public class DomTools {
 
     public static List<Node> getNodeList(Node parent, String nodeName) {
-        List<Node> ret = new ArrayList();
+        List<Node> ret = new ArrayList<Node>();
         return ret;
         /*
         NodeList nodeList = parent.getElementsByTagName("BookData");

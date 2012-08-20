@@ -5,8 +5,6 @@ package isbnsniff;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -28,6 +26,7 @@ public class CliInterpreter {
     public final static int OUTPUT_CSV = 4;
     public final static int OUTPUT_XML = 5;
     public final static int OUTPUT_CLI = 6;
+    public final static int OUTPUT_BIBTEX = 7;
     
     private final static String OPT_OUTPUT_MODE = "o";
     private final static String OPT_OUTPUT_PATH = "oF";
@@ -50,7 +49,7 @@ public class CliInterpreter {
     private CommandLine cmd = null;
     private Options options = null;
     private String isbnListString = null;
-
+    //@todo Remove XML input and CSV output
     public CliInterpreter(String[] args, List<IsbnModule> moduleList) throws ParseException {
         try {
             initializeParser(args);
@@ -99,7 +98,7 @@ public class CliInterpreter {
         options.addOption(OPT_CONF_PATH, true, "Set the configuration file");
         options.addOption(OPT_INPUT_MODE, true, "Get isbn from an external source. Possible values are: xml, csv");
         options.addOption(OPT_INPUT_PATH, true, "Specify the input filename");
-        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, csv");
+        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, csv, bibtex");
         options.addOption(OPT_OUTPUT_PATH, true, "Specify the output filename");
         options.addOption(OPT_ISBN_SET, true, "Specify a list of ISBNs 10 or 13 separated by commas.");
         options.addOption(OPT_LIST_MODULES, false, "List the Search engines supported.");
@@ -144,6 +143,8 @@ public class CliInterpreter {
                 outputMode = OUTPUT_CSV;
             } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("xml")) {
                 outputMode = OUTPUT_XML;
+            } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("bibtex")) {
+                outputMode = OUTPUT_BIBTEX;
             }
             else
                 throw new ParseException(ERR_UNRECOGNIZED_OPT + cmd.getOptionValue(OPT_OUTPUT_MODE));
@@ -151,7 +152,8 @@ public class CliInterpreter {
         else {
              outputMode = OUTPUT_CLI;
         }
-        if (outputMode == OUTPUT_CSV || outputMode == OUTPUT_XML) {
+        if (outputMode == OUTPUT_CSV || outputMode == OUTPUT_XML
+                || outputMode == OUTPUT_BIBTEX) {
             if (!cmd.hasOption(OPT_OUTPUT_PATH))
                 throw new ParseException(ERR_UNDEFINED_OPT + OPT_OUTPUT_PATH);
             else
@@ -189,6 +191,8 @@ public class CliInterpreter {
             return new IsbnOutputStandard();
         } else if (getOutputMode() == OUTPUT_XML) {
             return new IsbnOutputXml(getOutputFile());
+        } else if (getOutputMode() == OUTPUT_BIBTEX) {
+            return new IsbnOutputBibTeX(getOutputFile());
         } else if (getOutputMode() == OUTPUT_CSV) {
             return null;
         } else {

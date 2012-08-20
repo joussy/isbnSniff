@@ -12,7 +12,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  */
 public abstract class IsbnModule {
 
-    private List<BookItem> bookItemList = new ArrayList();
+    private List<BookItem> bookItemList = new ArrayList<BookItem>();
     protected String moduleName = "unknown";
 
     protected abstract void processQueryIsbn(BookItem nb) throws IsbnModuleException;

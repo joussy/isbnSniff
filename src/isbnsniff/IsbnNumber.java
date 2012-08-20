@@ -25,6 +25,7 @@ public class IsbnNumber {
     {
         if (number == null)
             return;
+        number = number.replaceAll("[^0-9Xx]", "");
         Pattern p = Pattern.compile("([0-9]{3})([0-9]{9})([0-9]{1})");
         Matcher m = p.matcher(number);
         if (m.find())

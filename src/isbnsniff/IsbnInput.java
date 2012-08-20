@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * @author jousse_s
  */
 public abstract class IsbnInput extends IsbnIO {
-    List<IsbnNumber> isbnList = new ArrayList();
+    List<IsbnNumber> isbnList = new ArrayList<IsbnNumber>();
     InputStream iStream = null;
     protected abstract void parseStream() throws IOException, IsbnFormatException;
     public IsbnInput(String name)

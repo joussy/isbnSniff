@@ -24,7 +24,8 @@ public class ConfigurationParser {
     private List<IsbnModule> priorityList = null;
     private List<IsbnModule> moduleList = null;
     private List<String> valueListOutput = null;
-    private Map<String, List<IsbnModule>> valuesPriority = new HashMap();
+    private Map<String, List<IsbnModule>> valuesPriority =
+            new HashMap<String, List<IsbnModule>>();
     private HierarchicalINIConfiguration iniConf = null;
     private ConfigurationParserExceptionList confEx = new ConfigurationParserExceptionList();
 
@@ -62,7 +63,7 @@ public class ConfigurationParser {
 
     private List<IsbnModule> getModuleListFromParam(HierarchicalConfiguration section,
             String keyName, List<IsbnModule> moduleList) {
-        List<IsbnModule> retList = new ArrayList();
+        List<IsbnModule> retList = new ArrayList<IsbnModule>();
         boolean found = false;
         for (String moduleName : section.getStringArray(keyName)) {
             for (IsbnModule module : moduleList) {
@@ -91,7 +92,7 @@ public class ConfigurationParser {
         priorityList = getModuleListFromParam(
                 iniConf.getSection("general"), "module_priority", moduleList);
         if (!iniConf.getSection("general").containsKey("output_values"))
-            valueListOutput = new ArrayList(Arrays.asList(BookItem.KEY_LIST));
+            valueListOutput = new ArrayList<String>(Arrays.asList(BookItem.KEY_LIST));
         else
             valueListOutput = getValueListFromParam(iniConf.getSection("general"),
             "output_values", Arrays.asList(BookItem.KEY_LIST));
@@ -130,7 +131,7 @@ public class ConfigurationParser {
     }
 
     private List<String> getValueListFromParam(SubnodeConfiguration section, String keyName, List<String> valueList) {
-        List<String> valueListRet = new ArrayList();
+        List<String> valueListRet = new ArrayList<String>();
         boolean found = false;
         for (String valueConf : section.getStringArray(keyName)) {
             for (String valueDef : valueList) {

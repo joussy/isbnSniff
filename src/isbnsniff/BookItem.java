@@ -35,7 +35,7 @@ public class BookItem {
     Integer weight;
     List<String> authorList = null;
     List<String> categoryList = null;
-    Map<String, Object> attributeList = new HashMap();
+    Map<String, Object> attributeList = new HashMap<String, Object>();
 
     public BookItem(IsbnNumber value) {
         isbn = value;
@@ -52,7 +52,7 @@ public class BookItem {
     public void addAuthor(String author) {
         if (authorList == null)
         {
-            authorList = new ArrayList();
+            authorList = new ArrayList<String>();
             attributeList.put(A_AUTHORS, authorList);
         }
         authorList.add(author);
@@ -89,7 +89,7 @@ public class BookItem {
     public void addCategory(String value) {
         if (categoryList == null)
         {
-            categoryList = new ArrayList();
+            categoryList = new ArrayList<String>();
             attributeList.put(A_CATEGORIES, categoryList);
         }
         categoryList.add(value);

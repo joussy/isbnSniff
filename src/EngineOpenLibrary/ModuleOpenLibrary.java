@@ -70,7 +70,8 @@ public class ModuleOpenLibrary extends IsbnModule {
         if (olj.getISBN() == null)
             return;
         book.setTitle(olj.getISBN().getTitle());
-        book.setNbPages(olj.getISBN().getNumber_of_pages().intValue());
+        if (olj.getISBN().getNumber_of_pages() != null)
+            book.setNbPages(olj.getISBN().getNumber_of_pages().intValue());
         //LinkedHashMap t = (LinkedHashMap) olj.getISBN().getAuthors();
         if (olj.getISBN().getAuthors() != null)
         {

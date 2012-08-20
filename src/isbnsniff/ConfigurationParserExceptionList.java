@@ -11,7 +11,8 @@ import java.util.List;
  */
 public class ConfigurationParserExceptionList extends Exception {
 
-    private List<ConfigurationParserException> messageList = new ArrayList();
+    private List<ConfigurationParserException> messageList =
+            new ArrayList<ConfigurationParserException>();
     public void addError(ConfigurationParserException ex) {
         messageList.add(ex);
     }

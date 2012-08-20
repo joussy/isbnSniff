@@ -46,7 +46,7 @@ public class ModuleAmazon extends IsbnModule {
     private void processItemList(List<Items> l) {
         for (Items itemList : l) {
             for (Item item : itemList.getItem()) {
-                List<IsbnNumber> amazonIsbnList = new ArrayList();
+                List<IsbnNumber> amazonIsbnList = new ArrayList<IsbnNumber>();
                 if (item.getItemAttributes() != null) {
                     for (String nb : item.getItemAttributes().getEISBN()) {
                         try {

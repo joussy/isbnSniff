@@ -19,11 +19,12 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  */
 public class SearchEngine {
 
-    private List<IsbnModule> moduleList = new ArrayList();
-    private List<IsbnNumber> isbnList = new ArrayList();
-    private List<IsbnModule> priorityList = new ArrayList();
-    private List<BookItem> bookResult = new ArrayList();
-    private Map<String, List<IsbnModule>> valuesPriority = new HashMap();
+    private List<IsbnModule> moduleList = new ArrayList<IsbnModule>();
+    private List<IsbnNumber> isbnList = new ArrayList<IsbnNumber>();
+    private List<IsbnModule> priorityList = new ArrayList<IsbnModule>();
+    private List<BookItem> bookResult = new ArrayList<BookItem>();
+    private Map<String, List<IsbnModule>> valuesPriority =
+            new HashMap<String, List<IsbnModule>>();
     private ConfigurationParser cParser = null;
 
     public SearchEngine(List<IsbnModule> pList,
@@ -58,16 +59,25 @@ public class SearchEngine {
      */
 
     public void performSearch() {
-        System.out.print("Processing: ");
+        String endl = System.getProperty("line.separator");
+        System.out.println("Processing ISBNs: ");
         for (IsbnModule module : priorityList) {
             for (IsbnNumber isbn : isbnList) {
                 module.addBookItem(new BookItem(isbn));
             }
-            System.out.print(", " + module.getModuleName());
+            System.out.print("=>" + module.getModuleName() + " ... ");
+            String err = null;
             try {
                 module.processQuery();
             } catch (IsbnModuleException ex) {
-                System.err.println(ex.getModuleName() + " Engine Error: " + ex.getMessage());
+                err = ex.getMessage();
+            }
+            if (err == null) {
+                System.out.println("OK");
+            }
+            else {
+                System.out.println("Error");
+                System.err.println(err);
             }
         }
         System.out.println();

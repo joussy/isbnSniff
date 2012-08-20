@@ -13,8 +13,8 @@ import java.util.List;
  */
 public abstract class IsbnOutput extends IsbnIO {
 
-    List<BookItem> bookList = new ArrayList();
-    List<String> outputValueList = new ArrayList();
+    List<BookItem> bookList = new ArrayList<BookItem>();
+    List<String> outputValueList = new ArrayList<String>();
 
     public abstract void writeOutput() throws FileNotFoundException, IOException;
 
