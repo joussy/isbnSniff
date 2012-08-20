@@ -130,6 +130,11 @@ public class BookItem {
     public String getPublisher() {
         return (String) attributeList.get(A_PUBLISHER);
     }
+
+    public String getSynopsis() {
+        return (String) attributeList.get(A_SYNOPSIS);
+    }
+
     public void automaticMerge(BookItem bookItem, Map<String, List<IsbnModule>> valuesPriority) {
         for (Entry<String, Object> entry : bookItem.attributeList.entrySet()) {
             if (attributeList.get((String) entry.getKey()) == null) {
