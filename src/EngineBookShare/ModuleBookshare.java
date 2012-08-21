@@ -4,6 +4,8 @@ package EngineBookShare;
 
 import EngineBookShare.Bookshare.Book.Metadata;
 import isbnsniff.BookItem;
+import isbnsniff.ConfigurationParser;
+import isbnsniff.ConfigurationParserException;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import java.net.MalformedURLException;
@@ -12,6 +14,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -25,6 +28,9 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  */
 public class ModuleBookshare extends IsbnModule {
     final static String MODULE_NAME = "Bookshare";
+    final private static String K_API_KEY = "api_key";
+    final private static String[] K_LIST = {K_API_KEY};
+
     private String accessKey;
     private Unmarshaller unmarshaller = null;
     public ModuleBookshare() throws IsbnModuleException
@@ -34,7 +40,7 @@ public class ModuleBookshare extends IsbnModule {
             JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class, Bookshare.class);
             unmarshaller = jc.createUnmarshaller();
         } catch (JAXBException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
     }
     @Override
@@ -47,12 +53,12 @@ public class ModuleBookshare extends IsbnModule {
         try {
             query = new URL(path);
         } catch (MalformedURLException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage(), Level.WARNING);
         }
         try {
             bookshareXml = (Bookshare)unmarshaller.unmarshal(query);
         } catch (JAXBException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
         processBookshareTree(bookshareXml, book);
     }
@@ -97,7 +103,10 @@ public class ModuleBookshare extends IsbnModule {
     }
 
     @Override
-    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
-        accessKey = sObj.getString("api_key", "undefined");
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj)
+            throws ConfigurationParserException {
+        Map<String, String> valueList
+                = ConfigurationParser.getSpecificModuleValues(sObj, K_LIST);
+        accessKey = valueList.get(K_API_KEY);
     }
 }

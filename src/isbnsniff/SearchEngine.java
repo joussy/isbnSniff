@@ -4,14 +4,9 @@ package isbnsniff;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
  *
@@ -32,69 +27,39 @@ public class SearchEngine {
         priorityList = pList;
         valuesPriority = vPriority;
     }
-    /*
-    private void processGeneralConfiguration() {
-    HierarchicalConfiguration generalSection = cParser.getIniConf().getSection("general");
-    priorityList = ConfigurationParser.getModuleListFromParam(
-    generalSection, "module_priority", moduleList);
-    }
-    
-    private void processValuesConfiguration() {
-    HierarchicalConfiguration valuesSection = cParser.getIniConf().getSection("values");
-    Iterator it = valuesSection.getKeys();
-    while (it.hasNext())
-    {
-    String key = (String) it.next();
-    valuesPriority.put(key, ConfigurationParser.getModuleListFromParam(
-    valuesSection, key, moduleList));
-    }
-    }
-    
-    private void processModuleConfiguration() {
-    for (IsbnModule module : moduleList) {
-    SubnodeConfiguration sObj = cParser.getIniConf().getSection(module.getModuleName());
-    module.setConfiguration(sObj);
-    }
-    }
-     */
 
     public void performSearch() {
-        String endl = System.getProperty("line.separator");
         System.out.println("Processing ISBNs: ");
         for (IsbnModule module : priorityList) {
             for (IsbnNumber isbn : isbnList) {
                 module.addBookItem(new BookItem(isbn));
             }
             System.out.print("=>" + module.getModuleName() + " ... ");
-            String err = null;
+            IsbnModuleExceptionList exList = null;
             try {
                 module.processQuery();
-            } catch (IsbnModuleException ex) {
-                err = ex.getMessage();
+            } catch (IsbnModuleExceptionList ex) {
+                exList = ex;
             }
-            if (err == null) {
+            if (exList == null) {
                 System.out.println("OK");
             }
             else {
-                System.out.println("Error");
+                int i = 0;
+                String err = "";
+                for (IsbnModuleException ex : exList.getErrorList()) {
+                    err += (i++ > 0 ? System.getProperty("line.separator") : "");
+                    err += ex.getMessage();
+                    if (ex.getIsbnNumber() != null) {
+                        err += " (ISBN: " + ex.getIsbnNumber().getIsbn13() + ")";
+                    }
+                }
+                System.out.println(i + " issues:");
                 System.err.println(err);
             }
         }
-        System.out.println();
     }
-
-    /*
-    public void mergeResults() {
-    for (IsbnNumber isbn : isbnList) {
-    BookItem book = new BookItem(isbn);
-    for (IsbnModule module : priorityList) {
-    book.automaticMerge(module.getBookItem(isbn), valuesPriority);
-    }
-    bookResult.add(book);
-    }
-    }
-     * 
-     */
+    //@todo empty string should be considered as null
     public void mergeResults() {
         for (IsbnNumber isbn : isbnList) {
             BookItem book = new BookItem(isbn);
@@ -120,16 +85,6 @@ public class SearchEngine {
     public void addIsbnModule(IsbnModule module) {
         moduleList.add(module);
     }
-    /*
-    private IsbnModule getIsbnModule(String moduleName) {
-    for (IsbnModule module : moduleList) {
-    if (module.getModuleName().equals(moduleName)) {
-    return module;
-    }
-    }
-    return null;
-    }
-     */
 
     public void setIsbnList(List<IsbnNumber> value) {
         for (IsbnNumber isbn : value) {

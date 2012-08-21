@@ -9,17 +9,12 @@ import isbnsniff.IsbnModuleException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
@@ -43,17 +38,17 @@ public class ModuleOpenLibrary extends IsbnModule {
             jsonQ = new URL("http://openlibrary.org/api/books.json?format=json&jscmd=data&bibkeys=ISBN:"
                 + book.getIsbn().getIsbn13());
         } catch (MalformedURLException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage(), Level.WARNING);
         }
         try
         {
             olj = mapper.readValue(jsonQ, OpenLibraryJson.class);
         }
         catch (JsonMappingException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
         catch (IOException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.WARNING);
         }
         processJSON(book, olj);
     }

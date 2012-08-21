@@ -5,12 +5,16 @@ package EngineIsbnDb;
 import EngineIsbnDb.ISBNdbBooks.BookList.BookData;
 import EngineIsbnDb.ISBNdbBooks.BookList.BookData.Authors.Person;
 import isbnsniff.BookItem;
+import isbnsniff.ConfigurationParser;
+import isbnsniff.ConfigurationParserException;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.JAXBContext;
@@ -25,6 +29,9 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 public class ModuleIsbndb extends IsbnModule {
 
     final static String MODULE_NAME = "IsbnDb";
+    final private static String K_API_KEY = "api_key";
+    final private static String[] K_LIST = {K_API_KEY};
+    
     private String accessKey;
     private Unmarshaller unmarshallerBooks = null;
     private Unmarshaller unmarshallerPublishers = null;
@@ -37,7 +44,7 @@ public class ModuleIsbndb extends IsbnModule {
             unmarshallerBooks = jcBooks.createUnmarshaller();
             unmarshallerPublishers = jcPublishers.createUnmarshaller();
         } catch (JAXBException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
     }
 
@@ -55,12 +62,12 @@ public class ModuleIsbndb extends IsbnModule {
         try {
             query = new URL(path);
         } catch (MalformedURLException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_URL, ex.getMessage(), Level.WARNING);
         }
         try {
             isbndbXml = (ISBNdbBooks) unmarshallerBooks.unmarshal(query);
         } catch (JAXBException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
         processIsbndbTree(isbndbXml, book);
     }
@@ -75,10 +82,10 @@ public class ModuleIsbndb extends IsbnModule {
 
     private void processIsbndbTree(ISBNdbBooks isbndbXml, BookItem book) throws IsbnModuleException {
         if (isbndbXml == null) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, "No BookList");
+            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, "No BookList", Level.INFO);
         }
         if (isbndbXml.getBookList() == null)
-            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, isbndbXml.getErrorMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_UNEXPECTED_FORMAT, isbndbXml.getErrorMessage(), Level.INFO);
         if (isbndbXml.getBookList().getBookData() != null) {
             BookData bookXml = isbndbXml.getBookList().getBookData();
             book.setSynopsis(bookXml.getSummary());
@@ -141,8 +148,11 @@ public class ModuleIsbndb extends IsbnModule {
     }
     
     @Override
-    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
-        accessKey = sObj.getString("api_key", "undefined");
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj)
+            throws ConfigurationParserException {
+        Map<String, String> valueList
+                = ConfigurationParser.getSpecificModuleValues(sObj, K_LIST);
+        accessKey = valueList.get(K_API_KEY);
     }
     
     private String processPublisherLookup(BookItem book, String publisherId) {

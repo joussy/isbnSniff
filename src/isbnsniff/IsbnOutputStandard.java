@@ -21,30 +21,32 @@ final public class IsbnOutputStandard extends IsbnOutput {
     @Override
     public void writeOutput() {
         System.out.println("/--IsbnOutputStandard");
-        String value;
+        int i = 0;
         String out = new String();
         for (BookItem book : bookList) {
             out = "Isbn13: " + book.getIsbn().getIsbn13() + System.getProperty("line.separator");
-            if ((value = getValue(BookItem.A_TITLE, book)) != null) {
-                out += BookItem.A_TITLE + ": " + value + System.getProperty("line.separator");
+            if (book.getTitle() != null) {
+                out += BookItem.A_TITLE + ": " + book.getTitle() + System.getProperty("line.separator");
             }
-            if ((value = getValue(BookItem.A_NBPAGES, book)) != null) {
-                out += BookItem.A_NBPAGES + ": " + value + System.getProperty("line.separator");
+            if (book.getNbPages() != null) {
+                out += BookItem.A_NBPAGES + ": " + book.getNbPages() + System.getProperty("line.separator");
             }
             if (book.getLcc() != null) {
                 out += BookItem.A_LCC + ": " + book.getLcc() + System.getProperty("line.separator");
             }
             if (book.getAuthorList() != null) {
                 out += BookItem.A_AUTHORS + ": ";
+                i = 0;
                 for (String author : book.getAuthorList()) {
-                    out += author + ", ";
+                    out += (i++ > 0 ? ", " : "") + author;
                 }
                 out += System.getProperty("line.separator");
             }
             if (book.getCategoryList() != null) {
                 out += BookItem.A_CATEGORIES + ": ";
+                i = 0;
                 for (String author : book.getCategoryList()) {
-                    out += author + ", ";
+                    out += (i++ > 0 ? ", " : "") + author + ", ";
                 }
                 out += System.getProperty("line.separator");                
             }

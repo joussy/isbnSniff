@@ -4,6 +4,7 @@ package isbnsniff;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,8 +107,8 @@ final public class IsbnOutputXml extends IsbnOutput {
             bookElement.appendChild(categoriesElem);
             
             rootElement.appendChild(bookElement);
-            writeDomToFile(doc);
         }
+        writeDomToFile(doc);
     }
 
     private void writeDomToFile(org.w3c.dom.Document doc) throws FileNotFoundException, IOException {
@@ -119,7 +120,8 @@ final public class IsbnOutputXml extends IsbnOutput {
             Logger.getLogger(IsbnOutputXml.class.getName()).log(Level.SEVERE, null, ex);
         }
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(oFilename);
+        FileOutputStream outStream = new FileOutputStream(oFilename);
+        StreamResult result = new StreamResult(outStream);
         try {
             transformer.transform(source, result);
         } catch (TransformerException ex) {
@@ -131,8 +133,11 @@ final public class IsbnOutputXml extends IsbnOutput {
                 Logger.getLogger(IsbnOutputXml.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        finally {
+             outStream.close();
+        }
     }
-
+ 
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

@@ -9,8 +9,9 @@ import com.ECS.client.jax.ItemLookup;
 import com.ECS.client.jax.ItemLookupRequest;
 import com.ECS.client.jax.Items;
 import com.ECS.client.jax.OperationRequest;
-import com.ECS.client.jax.Request;
 import isbnsniff.BookItem;
+import isbnsniff.ConfigurationParser;
+import isbnsniff.ConfigurationParserException;
 import isbnsniff.IsbnFormatException;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
@@ -20,8 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.ws.Holder;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
@@ -29,6 +30,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author jousse_s
  */
+//@todo How many ISBNs at the same time ?
 public class ModuleAmazon extends IsbnModule {
 
     final static String MODULE_NAME = "AmazonDb";
@@ -38,6 +40,12 @@ public class ModuleAmazon extends IsbnModule {
     private ItemLookup lookup;
     private ItemLookupRequest itemRequest;
     private AWSECommerceServicePortType port;
+    
+    final private static int MAX_ITEMS_BY_QUERY = 3;
+    final private static String K_ASSOCIATE_TAG = "api_associates_id";
+    final private static String K_ACCESS_KEY = "api_access_key";
+    final private static String K_SECRET_ACCESS_KEY = "api_secret_key";
+    final private static String[] K_LIST = {K_ASSOCIATE_TAG, K_ACCESS_KEY, K_SECRET_ACCESS_KEY};
 
     public ModuleAmazon() {
         moduleName = MODULE_NAME;
@@ -111,7 +119,7 @@ public class ModuleAmazon extends IsbnModule {
 
     @Override
     protected void processQueryIsbn(BookItem book) {
-        itemRequest.getItemId().add(book.getIsbn().getIsbn13());
+        //itemRequest.getItemId().add(book.getIsbn().getIsbn13());
     }
 
     @Override
@@ -123,9 +131,11 @@ public class ModuleAmazon extends IsbnModule {
         try {
         port = service.getAWSECommerceServicePortUK();
         } catch (Exception ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage(), Level.SEVERE);
         }
         lookup = new ItemLookup();
+        lookup.setAWSAccessKeyId(awsAccessKey);
+        lookup.setAssociateTag(associateTag);
         //Get the operation object:
         itemRequest = new ItemLookupRequest();
         //Fill in the request object:
@@ -135,39 +145,46 @@ public class ModuleAmazon extends IsbnModule {
 
     @Override
     protected void processQueryTerminate() throws IsbnModuleException {
-        lookup.setAWSAccessKeyId(awsAccessKey);
-        lookup.getRequest().add(itemRequest);
-        lookup.setAssociateTag(associateTag);
+        
         itemRequest.getResponseGroup().add("ItemAttributes,ItemIds");
-
-        Holder<OperationRequest> operationrequest = new Holder<OperationRequest>();
-        Holder<java.util.List<Items>> items = new Holder<java.util.List<Items>>();
-        //itemLookup : MarketplaceDomain, AWSAccessKeyId, AssociateTag, XMLEscaping, Validate, Shared, Request, OperationRequest, Items
-        try
-        {
-            port.itemLookup(
-                    lookup.getMarketplaceDomain(),
-                    lookup.getAWSAccessKeyId(),
-                    lookup.getAssociateTag(),
-                    lookup.getXMLEscaping(),
-                    lookup.getValidate(),
-                    lookup.getShared(),
-                    lookup.getRequest(),
-                    operationrequest,
-                    items);
-        } catch (Exception ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
-        }
+        for (int i = 0; i < bookItemList.size();) {
+            itemRequest.getItemId().clear();
+            for (int j = 0; j < MAX_ITEMS_BY_QUERY && i < bookItemList.size(); j++, i++) {
+                itemRequest.getItemId().add(bookItemList.get(i).getIsbn().getIsbn13());
+                //System.out.println("DEBUG, I=" + i + " J=" + j + "ISBN=" + bookItemList.get(i).getIsbn().getIsbn13());
+            }
+            lookup.getRequest().clear();
+            lookup.getRequest().add(itemRequest);
+            
+            Holder<OperationRequest> operationrequest = new Holder<OperationRequest>();
+            Holder<java.util.List<Items>> items = new Holder<java.util.List<Items>>();
+            //itemLookup : MarketplaceDomain, AWSAccessKeyId, AssociateTag, XMLEscaping, Validate, Shared, Request, OperationRequest, Items
+            try
+            {
+                port.itemLookup(
+                        lookup.getMarketplaceDomain(),
+                        lookup.getAWSAccessKeyId(),
+                        lookup.getAssociateTag(),
+                        lookup.getXMLEscaping(),
+                        lookup.getValidate(),
+                        lookup.getShared(),
+                        lookup.getRequest(),
+                        operationrequest,
+                        items);
+            } catch (Exception ex) {
+                throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage(), Level.SEVERE);
+            }
             processItemList(items.value);
+        }
     }
 
     @Override
-    protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
-//        api_secret_key=VZJOAxxbGBXIiRanJeYJUySwifBqZdGTfxrdXXXX
-//        api_access_key=AKIAILAAYXVGXRWSXXXX
-//        api_associates_id=joussybuffout-20
-        associateTag = sObj.getString("api_associates_id", "undefined");
-        awsAccessKey = sObj.getString("api_access_key", "undefined");
-        secretAccessKey = sObj.getString("api_secret_key", "undefined");
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj)
+            throws ConfigurationParserException {
+        Map<String, String> valueList
+                = ConfigurationParser.getSpecificModuleValues(sObj, K_LIST);
+        associateTag = valueList.get(K_ASSOCIATE_TAG);
+        awsAccessKey = valueList.get(K_ACCESS_KEY);
+        secretAccessKey = valueList.get(K_SECRET_ACCESS_KEY);
     }
 }

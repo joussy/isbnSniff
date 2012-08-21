@@ -10,16 +10,23 @@ import com.google.api.services.books.Books.Volumes.List;
 import com.google.api.services.books.model.Volume;
 import com.google.api.services.books.model.Volumes;
 import isbnsniff.BookItem;
+import isbnsniff.ConfigurationParser;
+import isbnsniff.ConfigurationParserException;
 import isbnsniff.IsbnModule;
 import isbnsniff.IsbnModuleException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.logging.Level;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class ModuleGoogleBooks extends IsbnModule {
 
     final static String MODULE_NAME = "GoogleBooks";
+    final private static String K_API_KEY = "api_key";
+    final private static String[] K_LIST = {K_API_KEY};
+
     private String accessKey = null;
     private Books books = null;
 
@@ -34,13 +41,13 @@ public class ModuleGoogleBooks extends IsbnModule {
         try {
             volumesList = books.volumes().list(query);
         } catch (IOException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage(), Level.WARNING);
         }
         Volumes volumes = null;
         try {
             volumes = volumesList.execute();
         } catch (IOException ex) {
-            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage());
+            throw new IsbnModuleException(IsbnModuleException.ERR_WEBSERVICE, ex.getMessage(), Level.WARNING);
         }
         if (volumes.getTotalItems() == 0 || volumes.getItems() == null) {
             return;
@@ -54,8 +61,10 @@ public class ModuleGoogleBooks extends IsbnModule {
             book.setTitle(volume.getVolumeInfo().getTitle());
             book.setNbPages(volume.getVolumeInfo().getPageCount());
             if (volume.getVolumeInfo() != null) {
-                for (String author : volume.getVolumeInfo().getAuthors()) {
-                    book.addAuthor(author);
+                if (volume.getVolumeInfo().getAuthors() != null) {
+                    for (String author : volume.getVolumeInfo().getAuthors()) {
+                        book.addAuthor(author);
+                    }
                 }
                 if (volume.getVolumeInfo().getCategories() != null) {
                     for (String category : volume.getVolumeInfo().getCategories()) {
@@ -88,7 +97,10 @@ public class ModuleGoogleBooks extends IsbnModule {
     }
 
     @Override
-    public void setConfigurationSpecific(SubnodeConfiguration sObj) {
-        accessKey = sObj.getString("api_key", "undefined");
+    protected void setConfigurationSpecific(SubnodeConfiguration sObj)
+            throws ConfigurationParserException {
+        Map<String, String> valueList
+                = ConfigurationParser.getSpecificModuleValues(sObj, K_LIST);
+        accessKey = valueList.get(K_API_KEY);
     }
 }

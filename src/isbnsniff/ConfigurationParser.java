@@ -4,7 +4,6 @@ package isbnsniff;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,16 +17,18 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author jousse_s
  */
+//@todo unkown key should throw an exception
+//@todo no engine = ?
 public class ConfigurationParser {
 
     private IsbnOutput isbnOutput = null;
     private List<IsbnModule> priorityList = null;
     private List<IsbnModule> moduleList = null;
-    private List<String> valueListOutput = null;
     private Map<String, List<IsbnModule>> valuesPriority =
             new HashMap<String, List<IsbnModule>>();
     private HierarchicalINIConfiguration iniConf = null;
     private ConfigurationParserExceptionList confEx = new ConfigurationParserExceptionList();
+    final private static String MODULE_PRIORITY = "module_priority";
 
     ConfigurationParser(File configurationFile, List<IsbnModule> moduleLst,
             IsbnOutput output) throws ConfigurationParserExceptionList {
@@ -61,42 +62,35 @@ public class ConfigurationParser {
         return iniConf;
     }
 
-    private List<IsbnModule> getModuleListFromParam(HierarchicalConfiguration section,
-            String keyName, List<IsbnModule> moduleList) {
-        List<IsbnModule> retList = new ArrayList<IsbnModule>();
-        boolean found = false;
-        for (String moduleName : section.getStringArray(keyName)) {
-            for (IsbnModule module : moduleList) {
-                if (moduleName.equalsIgnoreCase(module.getModuleName())) {
-                    found = true;
-                    if (!retList.contains(module)) {
-                        retList.add(module);
-                    }
-                    break;
-                }
-            }
-            if (!found) {
-                confEx.addError(new ConfigurationParserException("This module does not exist"));
-            }
-            found = false;
-        }
-        return retList;
-    }
-
     private void processGeneralSection() {
-        if (!iniConf.getSection("general").containsKey("module_priority"))
-        {
-            confEx.addError(new ConfigurationParserException(
-                    "module_priority argument undefined"));
+        Iterator it = iniConf.getSection("general").getKeys();
+        while (it.hasNext()) {
+            String generalKey = (String) it.next();
+            if (generalKey.equals(MODULE_PRIORITY)) {
+                try {
+                    priorityList = getModuleListFromParam(
+                            iniConf.getSection("general"),
+                            MODULE_PRIORITY, moduleList);
+                    if (priorityList.size() < 1) {
+                        confEx.addError(new ConfigurationParserException(
+                                MODULE_PRIORITY + " argument must contains"
+                                + " at least one search engine"));                        
+                    }
+                } catch (NoSuchFieldException ex) {
+                    confEx.addError(
+                            new ConfigurationParserException(ex.getMessage()
+                            + ": Unknown module for " + MODULE_PRIORITY
+                            + " field"));
+                }
+            } else {
+                confEx.addError(new ConfigurationParserException(
+                        generalKey + ": Unrecognized Key"));
+            }
         }
-        priorityList = getModuleListFromParam(
-                iniConf.getSection("general"), "module_priority", moduleList);
-        if (!iniConf.getSection("general").containsKey("output_values"))
-            valueListOutput = new ArrayList<String>(Arrays.asList(BookItem.KEY_LIST));
-        else
-            valueListOutput = getValueListFromParam(iniConf.getSection("general"),
-            "output_values", Arrays.asList(BookItem.KEY_LIST));
-        isbnOutput.setOutputValueList(valueListOutput);
+        if (!iniConf.getSection("general").containsKey(MODULE_PRIORITY)) {
+            confEx.addError(new ConfigurationParserException(
+                    MODULE_PRIORITY + " argument is undefined"));
+        }
     }
 
     private void processValuesSection() {
@@ -107,14 +101,23 @@ public class ConfigurationParser {
             String key = (String) it.next();
             for (String bookKey : BookItem.KEY_LIST) {
                 if (bookKey.equalsIgnoreCase(key)) {
-                    valuesPriority.put(key.toLowerCase(), getModuleListFromParam(
-                            valuesSection, key.toLowerCase(), moduleList));
+                    try {
+                        valuesPriority.put(key.toLowerCase(), getModuleListFromParam(
+                                valuesSection, key.toLowerCase(), priorityList));
+                    } catch (NoSuchFieldException ex) {
+                        confEx.addError(
+                                new ConfigurationParserException(ex.getMessage()
+                                + ": A module specified for a value must be "
+                                + "previously defined in " + MODULE_PRIORITY
+                                + " field"));
+                    }
                     found = true;
                     break;
                 }
             }
-            if (!found)
-                confEx.addError(new ConfigurationParserException(key + ": Unrecognized Value"));
+            if (!found) {
+                confEx.addError(new ConfigurationParserException(key + ": Unrecognized Key"));
+            }
             found = false;
         }
     }
@@ -122,7 +125,11 @@ public class ConfigurationParser {
     private void processModuleSections() {
         for (IsbnModule module : moduleList) {
             SubnodeConfiguration sObj = iniConf.getSection(module.getModuleName());
-            module.setConfiguration(sObj);
+            try {
+                module.setConfiguration(sObj);
+            } catch (ConfigurationParserException ex) {
+                confEx.addError(new ConfigurationParserException(ex.getMessage()));
+            }
         }
     }
 
@@ -130,24 +137,79 @@ public class ConfigurationParser {
         return new SearchEngine(priorityList, valuesPriority);
     }
 
-    private List<String> getValueListFromParam(SubnodeConfiguration section, String keyName, List<String> valueList) {
-        List<String> valueListRet = new ArrayList<String>();
+    public static Map<String, String> getSpecificModuleValues(SubnodeConfiguration sObj,
+            String[] keyList) throws ConfigurationParserException {
+        Map<String, String> ret = new HashMap<String, String>();
+        sObj.setThrowExceptionOnMissing(true);
+        Iterator<String> it = sObj.getKeys();
         boolean found = false;
-        for (String valueConf : section.getStringArray(keyName)) {
-            for (String valueDef : valueList) {
-                if (valueConf.equalsIgnoreCase(valueDef)) {
+        while (it.hasNext()) {
+            String cKey = (String) it.next();
+            found = false;
+            for (String key : keyList) {
+                if (key.equalsIgnoreCase(cKey)) {
                     found = true;
-                    if (!valueListRet.contains(valueConf)) {
-                        valueListRet.add(valueConf.toLowerCase());
-                    }
-                    break;
                 }
             }
             if (!found) {
-                confEx.addError(new ConfigurationParserException("This value does not exist"));
+                throw new ConfigurationParserException(cKey + ": Undefined Key");
+            }
+        }
+        for (String key : keyList) {
+            if (!sObj.containsKey(key)) {
+                throw new ConfigurationParserException(key + ": Key is undefined");
+            }
+            ret.put(key, sObj.getString(key));
+        }
+        return ret;
+    }
+
+    static private List<IsbnModule> getModuleListFromParam(HierarchicalConfiguration section,
+            String keyName, List<IsbnModule> moduleList) throws NoSuchFieldException {
+        List<IsbnModule> retList = new ArrayList<IsbnModule>();
+        boolean found = false;
+        for (String moduleName : section.getStringArray(keyName)) {
+            moduleName = moduleName.replaceAll(" ", "");
+            if (moduleList != null)
+            {
+                for (IsbnModule module : moduleList) {
+                    if (moduleName.equalsIgnoreCase(module.getModuleName())) {
+                        found = true;
+                        if (!retList.contains(module)) {
+                            retList.add(module);
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!found && moduleName.length() > 0) {
+                throw new NoSuchFieldException(moduleName);
             }
             found = false;
         }
-        return valueListRet;
+        return retList;
     }
+    
+    /*
+     * private List<String> getValueListFromParam(SubnodeConfiguration section, String keyName, List<String> valueList) {
+    List<String> valueListRet = new ArrayList<String>();
+    boolean found = false;
+    for (String valueConf : section.getStringArray(keyName)) {
+    for (String valueDef : valueList) {
+    if (valueConf.equalsIgnoreCase(valueDef)) {
+    found = true;
+    if (!valueListRet.contains(valueConf)) {
+    valueListRet.add(valueConf.toLowerCase());
+    }
+    break;
+    }
+    }
+    if (!found) {
+    confEx.addError(new ConfigurationParserException("This value does not exist"));
+    }
+    found = false;
+    }
+    return valueListRet;
+    }
+     */
 }

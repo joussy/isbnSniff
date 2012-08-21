@@ -112,7 +112,10 @@ public class IsbnNumber {
                 mod *= 10;
                 n = n == 3 ? 1 : 3;
             }
-            return 10 - (sum % 10);
+            if (sum % 10 == 0)
+                return 0;
+            else
+                return 10 - (sum % 10);
         }
     }
 }

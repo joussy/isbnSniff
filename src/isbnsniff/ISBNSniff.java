@@ -10,8 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.cli.ParseException;
 
 /**
@@ -21,6 +19,7 @@ import org.apache.commons.cli.ParseException;
 public class ISBNSniff {
 
     public static void main(String[] args) {
+        
         List<IsbnModule> moduleList = new ArrayList<IsbnModule>();
         try {
             moduleList.add(new ModuleIsbndb());
@@ -87,5 +86,6 @@ public class ISBNSniff {
         } catch (IOException ex) {
             System.err.println("Output Error: " + ex.getMessage());
         }
+
     }
 }
