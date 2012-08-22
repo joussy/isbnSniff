@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
+/**
+ * Implementation of Google Books Search Engine, using the dedicated Java API
+ * @author jousse_s
+ */
 public class ModuleGoogleBooks extends IsbnModule {
 
     final static String MODULE_NAME = "GoogleBooks";
@@ -30,10 +34,18 @@ public class ModuleGoogleBooks extends IsbnModule {
     private String accessKey = null;
     private Books books = null;
 
+    /**
+     * 
+     */
     public ModuleGoogleBooks() {
         moduleName = MODULE_NAME;
     }
 
+    /**
+     * For each BookItem, perform a request an retreive the results
+     * @param book
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         String query = "isbn:" + book.getIsbn().getIsbn13();
@@ -83,6 +95,9 @@ public class ModuleGoogleBooks extends IsbnModule {
         }
     }
 
+    /**
+     * Initialize Google Books API with specified API Key
+     */
     @Override
     protected void processQueryInitialize() {
         JsonHttpRequestInitializer credential = new GoogleKeyInitializer(accessKey);
@@ -92,10 +107,18 @@ public class ModuleGoogleBooks extends IsbnModule {
         books = new Books.Builder(new NetHttpTransport(), jsonFactory, null).setApplicationName("Google-BooksSample/1.0").setJsonHttpRequestInitializer(credential).build();
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryTerminate() {
     }
 
+    /**
+     * 
+     * @param sObj
+     * @throws ConfigurationParserException
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj)
             throws ConfigurationParserException {

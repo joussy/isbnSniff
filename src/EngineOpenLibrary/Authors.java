@@ -1,7 +1,8 @@
-
+/*
+ * Generated with Json Gen classes generator
+ * http://jsongen.byingtondesign.com/
+ */
 package EngineOpenLibrary;
-
-import java.util.List;
 
 public class Authors{
    	private String name;

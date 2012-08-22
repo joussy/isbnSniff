@@ -29,6 +29,10 @@ final public class IsbnOutputXml extends IsbnOutput {
     File oFilename;
     DocumentBuilder docBuilder = null;
 
+    /**
+     * Write the search engine results in XML Format
+     * @param value The file where the XML will be generated
+     */
     public IsbnOutputXml(File value) {
         super(mName);
         oFilename = value;
@@ -40,6 +44,11 @@ final public class IsbnOutputXml extends IsbnOutput {
         }
     }
 
+    /**
+     * 
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     @Override
     public void writeOutput() throws FileNotFoundException, IOException {
         org.w3c.dom.Document doc = docBuilder.newDocument();
@@ -138,6 +147,10 @@ final public class IsbnOutputXml extends IsbnOutput {
         }
     }
  
+    /**
+     * 
+     * @param cNode
+     */
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

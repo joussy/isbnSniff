@@ -18,6 +18,10 @@ import org.apache.commons.cli.ParseException;
  */
 public class ISBNSniff {
 
+    /**
+     * Main fonction. Get ISBNs Book details using Search engine queries
+     * @param args
+     */
     public static void main(String[] args) {
         
         List<IsbnModule> moduleList = new ArrayList<IsbnModule>();
@@ -71,12 +75,15 @@ public class ISBNSniff {
             return;
         }
         SearchEngine sEngine = cfgParser.generateSearchEngine();
+        /*
         for (IsbnNumber nb : input.getIsbnList()) {
-            //System.out.println("ISBN=" + nb.getIsbn13());
+            System.out.println("ISBN=" + nb.getIsbn13());
         }
+         */
         sEngine.setIsbnList(input.getIsbnList());
         sEngine.performSearch();
-        sEngine.debugPrintModuleResults();
+        //sEngine.debugPrintModuleResults();
+        //debugPrintValuesPriority();
         sEngine.mergeResults();
         output.setBookList(sEngine.getResults());
         try {

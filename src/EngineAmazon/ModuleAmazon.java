@@ -47,6 +47,10 @@ public class ModuleAmazon extends IsbnModule {
     final private static String K_SECRET_ACCESS_KEY = "api_secret_key";
     final private static String[] K_LIST = {K_ASSOCIATE_TAG, K_ACCESS_KEY, K_SECRET_ACCESS_KEY};
 
+    /**
+     * Amazon Engine implementation
+     * Use Amazon Java dedicated webservice
+     */
     public ModuleAmazon() {
         moduleName = MODULE_NAME;
     }
@@ -117,11 +121,19 @@ public class ModuleAmazon extends IsbnModule {
         }
     }
 
+    /**
+     * 
+     * @param book
+     */
     @Override
     protected void processQueryIsbn(BookItem book) {
         //itemRequest.getItemId().add(book.getIsbn().getIsbn13());
     }
 
+    /**
+     * instantiate Amazon webservice and set API keys
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryInitialize() throws IsbnModuleException {
         // Set the service:
@@ -143,6 +155,10 @@ public class ModuleAmazon extends IsbnModule {
         itemRequest.setSearchIndex("Books");
     }
 
+    /**
+     * Specify all the ISBNs and query the Amazon Server.
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryTerminate() throws IsbnModuleException {
         
@@ -178,6 +194,11 @@ public class ModuleAmazon extends IsbnModule {
         }
     }
 
+    /**
+     * 
+     * @param sObj
+     * @throws ConfigurationParserException
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj)
             throws ConfigurationParserException {

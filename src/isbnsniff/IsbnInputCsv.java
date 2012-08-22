@@ -21,18 +21,32 @@ import org.apache.commons.csv.CSVParser;
 final public class IsbnInputCsv extends IsbnInput {
     final static private String mName = "csv";
     Reader reader = null;
+    /**
+     * Input module for CSV format
+     * @param file CSV File to parse
+     * @throws FileNotFoundException
+     */
     public IsbnInputCsv(File file) throws FileNotFoundException
     {
         super(mName);
         reader = new FileReader(file);
     }
     
+    /**
+     * Input module for CSV format
+     * @param value The CSV string to parse
+     */
     public IsbnInputCsv(String value)
     {
         super(mName);
         reader = new StringReader(value);
     }
 
+    /**
+     * 
+     * @throws IOException
+     * @throws IsbnFormatException
+     */
     @Override
     public void parseStream() throws IOException, IsbnFormatException
     {
@@ -51,6 +65,10 @@ final public class IsbnInputCsv extends IsbnInput {
         }
     }
 
+    /**
+     * 
+     * @param cNode
+     */
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

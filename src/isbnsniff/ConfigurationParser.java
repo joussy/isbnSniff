@@ -14,11 +14,9 @@ import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 /**
- *
+ * Retrieve values specified in the Ini Configuration file using Apache Commons Configuration
  * @author jousse_s
  */
-//@todo unkown key should throw an exception
-//@todo no engine = ?
 public class ConfigurationParser {
 
     private IsbnOutput isbnOutput = null;
@@ -58,6 +56,10 @@ public class ConfigurationParser {
         processModuleSections();
     }
 
+    /**
+     * 
+     * @return
+     */
     public HierarchicalINIConfiguration getIniConf() {
         return iniConf;
     }
@@ -74,22 +76,22 @@ public class ConfigurationParser {
                     if (priorityList.size() < 1) {
                         confEx.addError(new ConfigurationParserException(
                                 MODULE_PRIORITY + " argument must contains"
-                                + " at least one search engine"));                        
+                                + " at least one search engine", "general"));                        
                     }
                 } catch (NoSuchFieldException ex) {
                     confEx.addError(
                             new ConfigurationParserException(ex.getMessage()
                             + ": Unknown module for " + MODULE_PRIORITY
-                            + " field"));
+                            + " field", "general"));
                 }
             } else {
                 confEx.addError(new ConfigurationParserException(
-                        generalKey + ": Unrecognized Key"));
+                        generalKey + ": Unrecognized Key", "general"));
             }
         }
         if (!iniConf.getSection("general").containsKey(MODULE_PRIORITY)) {
             confEx.addError(new ConfigurationParserException(
-                    MODULE_PRIORITY + " argument is undefined"));
+                    MODULE_PRIORITY + " argument is undefined", "general"));
         }
     }
 
@@ -109,34 +111,49 @@ public class ConfigurationParser {
                                 new ConfigurationParserException(ex.getMessage()
                                 + ": A module specified for a value must be "
                                 + "previously defined in " + MODULE_PRIORITY
-                                + " field"));
+                                + " field", "values"));
                     }
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                confEx.addError(new ConfigurationParserException(key + ": Unrecognized Key"));
+                confEx.addError(new ConfigurationParserException(
+                        key + ": Unrecognized Key", "values"));
             }
             found = false;
         }
     }
 
     private void processModuleSections() {
-        for (IsbnModule module : moduleList) {
-            SubnodeConfiguration sObj = iniConf.getSection(module.getModuleName());
+        if (priorityList == null)
+            return;
+        for (IsbnModule module : priorityList) {
+            SubnodeConfiguration sObj = iniConf.getSection(module.getModuleName().toLowerCase());
             try {
                 module.setConfiguration(sObj);
             } catch (ConfigurationParserException ex) {
-                confEx.addError(new ConfigurationParserException(ex.getMessage()));
+                ex.setSection(module.getModuleName().toLowerCase());
+                confEx.addError(ex);
             }
         }
     }
 
+    /**
+     * Instanciate a new Search Engine depending on values specified in the configuration file
+     * @return a new Search Engine
+     */
     public SearchEngine generateSearchEngine() {
         return new SearchEngine(priorityList, valuesPriority);
     }
 
+    /**
+     * Parse values separated by commas from the Value Section
+     * @param sObj The section who contains the values
+     * @param keyList The keys that should be present in this section
+     * @return A map of keys associated with their values (Ini Configuration format)
+     * @throws ConfigurationParserException If an value not present in keyList has been matched
+     */
     public static Map<String, String> getSpecificModuleValues(SubnodeConfiguration sObj,
             String[] keyList) throws ConfigurationParserException {
         Map<String, String> ret = new HashMap<String, String>();
@@ -188,28 +205,5 @@ public class ConfigurationParser {
             found = false;
         }
         return retList;
-    }
-    
-    /*
-     * private List<String> getValueListFromParam(SubnodeConfiguration section, String keyName, List<String> valueList) {
-    List<String> valueListRet = new ArrayList<String>();
-    boolean found = false;
-    for (String valueConf : section.getStringArray(keyName)) {
-    for (String valueDef : valueList) {
-    if (valueConf.equalsIgnoreCase(valueDef)) {
-    found = true;
-    if (!valueListRet.contains(valueConf)) {
-    valueListRet.add(valueConf.toLowerCase());
-    }
-    break;
-    }
-    }
-    if (!found) {
-    confEx.addError(new ConfigurationParserException("This value does not exist"));
-    }
-    found = false;
-    }
-    return valueListRet;
-    }
-     */
+    }    
 }

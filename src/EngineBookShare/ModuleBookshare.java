@@ -33,6 +33,10 @@ public class ModuleBookshare extends IsbnModule {
 
     private String accessKey;
     private Unmarshaller unmarshaller = null;
+    /**
+     * Implementation of Bookshare module, using XML POJO
+     * @throws IsbnModuleException
+     */
     public ModuleBookshare() throws IsbnModuleException
     {
         moduleName = MODULE_NAME;
@@ -43,6 +47,11 @@ public class ModuleBookshare extends IsbnModule {
             throw new IsbnModuleException(IsbnModuleException.ERR_JAXB, ex.getMessage(), Level.SEVERE);
         }
     }
+    /**
+     * 
+     * @param book
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         URL query = null;
@@ -62,10 +71,16 @@ public class ModuleBookshare extends IsbnModule {
         }
         processBookshareTree(bookshareXml, book);
     }
+    /**
+     * 
+     */
     @Override
     protected void processQueryInitialize() {
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryTerminate() {
     }
@@ -102,6 +117,11 @@ public class ModuleBookshare extends IsbnModule {
                 }
     }
 
+    /**
+     * 
+     * @param sObj
+     * @throws ConfigurationParserException
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj)
             throws ConfigurationParserException {

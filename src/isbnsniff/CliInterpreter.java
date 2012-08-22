@@ -14,19 +14,35 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 /**
- *
+ * Command Interpreter using Apache Commons CLI
  * @author jousse_s
  */
 public class CliInterpreter {
 
+    /**
+     * No Input Mode
+     */
     public final static int INPUT_NO = 0;
+    /**
+     * CSV input mode
+     */
     public final static int INPUT_CSV = 1;
-    public final static int INPUT_XML = 2;
-    public final static int INPUT_CLI = 3;
-    public final static int OUTPUT_CSV = 4;
-    public final static int OUTPUT_XML = 5;
-    public final static int OUTPUT_CLI = 6;
-    public final static int OUTPUT_BIBTEX = 7;
+    /**
+     * Command line input mode
+     */
+    public final static int INPUT_CLI = 2;
+    /**
+     * XML output mode
+     */
+    public final static int OUTPUT_XML = 3;
+    /**
+     * Standard output mode
+     */
+    public final static int OUTPUT_CLI = 4;
+    /**
+     * BibTeX output mode
+     */
+    public final static int OUTPUT_BIBTEX = 5;
     
     private final static String OPT_OUTPUT_MODE = "o";
     private final static String OPT_OUTPUT_PATH = "oF";
@@ -49,7 +65,12 @@ public class CliInterpreter {
     private CommandLine cmd = null;
     private Options options = null;
     private String isbnListString = null;
-    //@todo Remove XML input and CSV output
+    /**
+     * Initialize Command Line interpreter
+     * @param args The argv String Array from Java Main class
+     * @param moduleList The list of module loaded in the core
+     * @throws ParseException
+     */
     public CliInterpreter(String[] args, List<IsbnModule> moduleList) throws ParseException {
         try {
             initializeParser(args);
@@ -69,6 +90,11 @@ public class CliInterpreter {
                 toPrint += module.getModuleName() + " ";
             }
             System.out.println(toPrint);
+            toPrint = "Values supported: ";
+            for (String key : BookItem.KEY_LIST) {
+                toPrint += key + " ";
+            }
+            System.out.println(toPrint);
         }
         else
         {
@@ -84,24 +110,24 @@ public class CliInterpreter {
     
     private void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
+        String header = "       " + USAGE_NAME + " -" + OPT_LIST_MODULES + System.getProperty("line.separator");
         String cliUsage = USAGE_NAME + " "
-                + "[[-" + OPT_INPUT_MODE + " csv|xml -" + OPT_INPUT_PATH + " path] | -" + OPT_ISBN_SET + " isbnList] "
-                + "[-" + OPT_OUTPUT_MODE + " csv|xml -" + OPT_OUTPUT_PATH + " path] "
-                + " -" + OPT_CONF_PATH + " path" + System.getProperty("line.separator")
-                + USAGE_NAME + " -" + OPT_LIST_MODULES + System.getProperty("line.separator")
-                + USAGE_NAME + " -" + OPT_HELP;
-        formatter.printHelp(cliUsage, options);
+                + " -" + OPT_CONF_PATH + " <path> "
+                + "[[-" + OPT_INPUT_MODE + " <arg> -" + OPT_INPUT_PATH + " <arg>] | -" + OPT_ISBN_SET + " <arg>] "
+                + "[-" + OPT_OUTPUT_MODE + " <arg> -" + OPT_OUTPUT_PATH + " <arg>] "
+                + System.getProperty("line.separator");
+        formatter.printHelp(100, cliUsage, header, options, "");
     }
     
     private void initializeParser(String[] args) throws Exception {
         options = new Options();
         options.addOption(OPT_CONF_PATH, true, "Set the configuration file");
-        options.addOption(OPT_INPUT_MODE, true, "Get isbn from an external source. Possible values are: xml, csv");
+        options.addOption(OPT_INPUT_MODE, true, "Get ISBN from an external source. Possible values are: csv");
         options.addOption(OPT_INPUT_PATH, true, "Specify the input filename");
-        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, csv, bibtex");
+        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, bibtex");
         options.addOption(OPT_OUTPUT_PATH, true, "Specify the output filename");
         options.addOption(OPT_ISBN_SET, true, "Specify a list of ISBNs 10 or 13 separated by commas.");
-        options.addOption(OPT_LIST_MODULES, false, "List the Search engines supported.");
+        options.addOption(OPT_LIST_MODULES, false, "List the Search engines and output values. These values can be specified in the configuration file");
         options.addOption(OPT_HELP, false, "Print this help message.");
         CommandLineParser parser = new PosixParser();
         try {
@@ -115,16 +141,15 @@ public class CliInterpreter {
         if (cmd.hasOption(OPT_INPUT_MODE)) {
             if (cmd.getOptionValue(OPT_INPUT_MODE).equals("csv")) {
                 inputMode = INPUT_CSV;
-            } else if (cmd.getOptionValue(OPT_INPUT_MODE).equals("xml")) {
-                inputMode = INPUT_XML;
-            }
-            else
+            } else
                 throw new ParseException(ERR_UNRECOGNIZED_OPT + cmd.getOptionValue(OPT_INPUT_MODE));
         }
-        else {
+        else if (cmd.hasOption(OPT_ISBN_SET)){
             inputMode = INPUT_CLI;
         }
-        if (inputMode == INPUT_CSV || inputMode == INPUT_XML) {
+        else
+            throw new ParseException("No input mode specified");
+        if (inputMode == INPUT_CSV) {
             if (!cmd.hasOption(OPT_INPUT_PATH))
                 throw new ParseException(ERR_UNDEFINED_OPT + OPT_INPUT_PATH);
             else
@@ -139,9 +164,7 @@ public class CliInterpreter {
 
     private void parseOutputParams() throws ParseException {
         if (cmd.hasOption(OPT_OUTPUT_MODE)) {
-            if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("csv")) {
-                outputMode = OUTPUT_CSV;
-            } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("xml")) {
+            if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("xml")) {
                 outputMode = OUTPUT_XML;
             } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("bibtex")) {
                 outputMode = OUTPUT_BIBTEX;
@@ -152,8 +175,7 @@ public class CliInterpreter {
         else {
              outputMode = OUTPUT_CLI;
         }
-        if (outputMode == OUTPUT_CSV || outputMode == OUTPUT_XML
-                || outputMode == OUTPUT_BIBTEX) {
+        if (outputMode == OUTPUT_XML || outputMode == OUTPUT_BIBTEX) {
             if (!cmd.hasOption(OPT_OUTPUT_PATH))
                 throw new ParseException(ERR_UNDEFINED_OPT + OPT_OUTPUT_PATH);
             else
@@ -168,14 +190,16 @@ public class CliInterpreter {
             configurationFile = new File(cmd.getOptionValue(OPT_CONF_PATH));
     }
 
+    /**
+     * Instantiate and configure a new Isbn Input depending on configuration file values
+     * @return The IsbnInput instantiated and configurated, or null if no input has been specified
+     */
     public IsbnInput generateIsbnInput() {
         try {
             if (getInputMode() == INPUT_CSV) {
                 return new IsbnInputCsv(getInputFile());
             } else if (getInputMode() == INPUT_CLI) {
                 return new IsbnInputCsv(getIsbnListString());
-            } else if (getInputMode() == INPUT_XML) {
-                return null;
             } else {
                 return null;
             }
@@ -186,6 +210,10 @@ public class CliInterpreter {
         }
     }
 
+    /**
+     * Instantiate and configure a new Isbn Output depending on configuration file values
+     * @return The IsbnOutput instantiated and configurated, or null if no input has been specified
+     */
     public IsbnOutput generateIsbnOutput() {
         if (getOutputMode() == OUTPUT_CLI) {
             return new IsbnOutputStandard();
@@ -193,33 +221,55 @@ public class CliInterpreter {
             return new IsbnOutputXml(getOutputFile());
         } else if (getOutputMode() == OUTPUT_BIBTEX) {
             return new IsbnOutputBibTeX(getOutputFile());
-        } else if (getOutputMode() == OUTPUT_CSV) {
-            return null;
         } else {
             return null;
         }
     }
 
+    /**
+     * Retrieve the List of ISBNs as a String separated by commas, or null if no -l option has been specified
+     * @return The -l value, or null if the argument has been specified
+     */
     public String getIsbnListString() {
         return isbnListString;
     }
 
+    /**
+     * Retrieve the input File specified by the command line
+     * @return the -iF value, or null if the argument has been specified
+     */
     public File getInputFile() {
         return inputFile;
     }
 
+    /**
+     * Retrieve the output File specified by the command line
+     * @return the -oF value, or null if the argument has been specified
+     */
     public File getOutputFile() {
         return outputFile;
     }
 
+    /**
+     * Retrieve the configuration File specified by the command line
+     * @return The -c value, or null if the argument has been specified
+     */
     public File getConfigurationFile() {
         return configurationFile;
     }
     
+    /**
+     * Gets the actual input mode specified by the command line
+     * @return a int value matching with an input mode
+     */
     public int getInputMode() {
         return inputMode;
     }
     
+    /**
+     * Gets the actual output mode specified by the command line
+     * @return a int value matching with the output mode
+     */
     public int getOutputMode() {
         return outputMode;
     }

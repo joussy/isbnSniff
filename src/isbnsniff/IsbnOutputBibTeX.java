@@ -9,12 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.configuration.SubnodeConfiguration;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  *
@@ -24,6 +23,10 @@ public class IsbnOutputBibTeX extends IsbnOutput {
     private File filename;
     final static private String mName = "bibtex"; // Output module name
 
+    /**
+     * Generate a .bib file from a BookItem List
+     * @param value
+     */
     public IsbnOutputBibTeX(File value) {
         super(mName);
        filename = value;
@@ -51,6 +54,11 @@ public class IsbnOutputBibTeX extends IsbnOutput {
         return entry;
     }
     
+    /**
+     * Write the BookItem list in the BibTeX format
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     @Override
     public void writeOutput() throws FileNotFoundException, IOException {
         String endl = System.getProperty("line.separator");
@@ -58,7 +66,9 @@ public class IsbnOutputBibTeX extends IsbnOutput {
         for (int i = 0; i < bookList.size(); i++) {
             out += "@Book{isbnsniff-" + i + "," + endl;
             for (Entry<String, String> entry : getEntry(bookList.get(i)).entrySet()) {
-                out += " " + entry.getKey() + " = \"" + entry.getValue() + "\"," + endl;
+                out += " " + entry.getKey() + " = \""
+                        + StringEscapeUtils.escapeJavaScript(entry.getValue())
+                        + "\"," + endl;
             }
             out += "}" + endl + endl;
         }
@@ -67,6 +77,10 @@ public class IsbnOutputBibTeX extends IsbnOutput {
         output.close();
     }
     
+    /**
+     * 
+     * @param cNode
+     */
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

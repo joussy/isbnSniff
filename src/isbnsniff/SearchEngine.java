@@ -22,12 +22,20 @@ public class SearchEngine {
             new HashMap<String, List<IsbnModule>>();
     private ConfigurationParser cParser = null;
 
+    /**
+     * Call the ISBN Engine modules from an ISBN list and merge the results
+     * @param pList The list of the engines who will perform the search (Ordered by priority)
+     * @param vPriority The Map of values/Module list
+     */
     public SearchEngine(List<IsbnModule> pList,
             Map<String, List<IsbnModule>> vPriority) {
         priorityList = pList;
         valuesPriority = vPriority;
     }
 
+    /**
+     * Call all the loaded search engine
+     */
     public void performSearch() {
         System.out.println("Processing ISBNs: ");
         for (IsbnModule module : priorityList) {
@@ -60,6 +68,9 @@ public class SearchEngine {
         }
     }
     //@todo empty string should be considered as null
+    /**
+     * Merge results from each search engine. If an engine does not know the value for a field, the following engine result is called
+     */
     public void mergeResults() {
         for (IsbnNumber isbn : isbnList) {
             BookItem book = new BookItem(isbn);
@@ -82,10 +93,10 @@ public class SearchEngine {
         }
     }
 
-    public void addIsbnModule(IsbnModule module) {
-        moduleList.add(module);
-    }
-
+    /**
+     * Specify the list of ISBN to send to all the loaded search engines
+     * @param value
+     */
     public void setIsbnList(List<IsbnNumber> value) {
         for (IsbnNumber isbn : value) {
             if (!isbnList.contains(isbn)) {
@@ -94,6 +105,9 @@ public class SearchEngine {
         }
     }
 
+    /**
+     * 
+     */
     public void debugPrintValuesPriority() {
         for (Entry<String, List<IsbnModule>> entry : valuesPriority.entrySet()) {
             System.out.print("value=" + entry.getKey() + " Priority=");
@@ -107,6 +121,9 @@ public class SearchEngine {
     private String pA(String value) {
         return value == null ? "" : value;
     }
+    /**
+     * Print a debug for each module answers
+     */
     public void debugPrintModuleResults() {
         for (IsbnModule module : priorityList) {
             System.out.println("/--" + module.getModuleName());
@@ -122,6 +139,10 @@ public class SearchEngine {
         }
     }
 
+    /**
+     * Return the BookItem list generated from search engine results
+     * @return
+     */
     public List<BookItem> getResults() {
         return bookResult;
     }

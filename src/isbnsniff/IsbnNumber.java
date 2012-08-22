@@ -14,18 +14,31 @@ public class IsbnNumber {
     private Integer ean = 0;
     private Integer body = 0;
     private Integer checkDigit = 0;
+    /**
+     * Define an empty ISBN
+     */
     public IsbnNumber()
     {
     }
+    /**
+     * Define an ISBN from a String
+     * @param number
+     * @throws IsbnFormatException If the ISBN parsed is invalid
+     */
     public IsbnNumber(String number) throws IsbnFormatException
     {
         setIsbnNumber(number);
     }
-    public final void setIsbnNumber(String number) throws IsbnFormatException
+    /**
+     * Check the format and the check digit of a given ISBN
+     * @param orgNumber
+     * @throws IsbnFormatException
+     */
+    public final void setIsbnNumber(String orgNumber) throws IsbnFormatException
     {
-        if (number == null)
+        if (orgNumber == null)
             return;
-        number = number.replaceAll("[^0-9Xx]", "");
+        String number = orgNumber.replaceAll("[^0-9Xx]", "");
         Pattern p = Pattern.compile("([0-9]{3})([0-9]{9})([0-9]{1})");
         Matcher m = p.matcher(number);
         if (m.find())
@@ -35,7 +48,7 @@ public class IsbnNumber {
             checkDigit = Integer.parseInt(m.group(3));
             if (getIsbnCheckDigit(false) != checkDigit)
                 throw new IsbnFormatException(
-                        IsbnFormatException.ERR_CHECK_DIGIT, number);
+                        IsbnFormatException.ERR_CHECK_DIGIT, orgNumber);
         }
         else
         {
@@ -51,11 +64,11 @@ public class IsbnNumber {
                     checkDigit = 10;
                 if (getIsbnCheckDigit(true) != checkDigit)
                 throw new IsbnFormatException(
-                        IsbnFormatException.ERR_CHECK_DIGIT, number);
+                        IsbnFormatException.ERR_CHECK_DIGIT, orgNumber);
             }
             else
                 throw new IsbnFormatException(
-                        IsbnFormatException.ERR_FORMAT, number);
+                        IsbnFormatException.ERR_FORMAT, orgNumber);
         }
     }
  @Override
@@ -67,18 +80,28 @@ public class IsbnNumber {
         }
         return false;
     }
-    public String getIsbn13()
+ /**
+  * Get the ISBN 13 digits version of the number
+  * @return
+  */
+ public String getIsbn13()
     {
         return String.format("%03d", ean) + String.format("%09d", body) +
                 getIsbnCheckDigit(false).toString();
     }
+    /**
+     * Get the ISBN 10 digits version of the number
+     * @return
+     */
     public String getIsbn10()
     {        
         return String.format("%09d", body) +
                 (getIsbnCheckDigit(true) > 9 ? "X" : String.format("%01d", getIsbnCheckDigit(true)));
     }
-    /*
-     * isbn10Mode : True for 10 digits, false for 13 digits
+    /**
+     * Check Digit 10/13 format calculation
+     * @param isbn10Mode True for 10 digits, false for 13 digits
+     * @return the check digit
      */
     public Integer getIsbnCheckDigit(boolean isbn10Mode)
     {

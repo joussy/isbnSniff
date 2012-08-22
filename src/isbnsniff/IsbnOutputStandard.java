@@ -14,15 +14,23 @@ final public class IsbnOutputStandard extends IsbnOutput {
 
     final static private String mName = "standard"; // Output module name
 
+    /**
+     * Print the Engine results on the standard output
+     */
     public IsbnOutputStandard() {
         super(mName);
     }
     
+    /**
+     * 
+     */
     @Override
     public void writeOutput() {
-        System.out.println("/--IsbnOutputStandard");
+        System.out.println();
+        System.out.println("Results: ");
         int i = 0;
         String out = new String();
+        System.out.println("---------------------------");
         for (BookItem book : bookList) {
             out = "Isbn13: " + book.getIsbn().getIsbn13() + System.getProperty("line.separator");
             if (book.getTitle() != null) {
@@ -66,6 +74,10 @@ final public class IsbnOutputStandard extends IsbnOutput {
         }
     }
     
+    /**
+     * 
+     * @param cNode
+     */
     @Override
     public void setConfiguration(SubnodeConfiguration cNode) {
     }

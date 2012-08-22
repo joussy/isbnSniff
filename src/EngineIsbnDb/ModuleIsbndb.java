@@ -36,6 +36,10 @@ public class ModuleIsbndb extends IsbnModule {
     private Unmarshaller unmarshallerBooks = null;
     private Unmarshaller unmarshallerPublishers = null;
 
+    /**
+     * IsbnDb Engine implementation using XML POJOs
+     * @throws IsbnModuleException
+     */
     public ModuleIsbndb() throws IsbnModuleException {
         moduleName = MODULE_NAME;
         try {
@@ -48,6 +52,11 @@ public class ModuleIsbndb extends IsbnModule {
         }
     }
 
+    /**
+     * Send a query for each BookItem and retreive the result using the appropriate Jaxb unmarshaller
+     * @param book
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         URL query = null;
@@ -72,10 +81,16 @@ public class ModuleIsbndb extends IsbnModule {
         processIsbndbTree(isbndbXml, book);
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryInitialize() {
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryTerminate() {
     }
@@ -147,6 +162,11 @@ public class ModuleIsbndb extends IsbnModule {
         }
     }
     
+    /**
+     * 
+     * @param sObj
+     * @throws ConfigurationParserException
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj)
             throws ConfigurationParserException {

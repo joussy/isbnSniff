@@ -39,6 +39,10 @@ public class ModuleLibraryThing extends IsbnModule {
     private String accessKey;
     private Unmarshaller unmarshaller = null;
 
+    /**
+     * LibraryThing engine implementation using XML Pojo and Jaxb unmarshaller
+     * @throws IsbnModuleException
+     */
     public ModuleLibraryThing() throws IsbnModuleException {
         moduleName = MODULE_NAME;
         try {
@@ -49,10 +53,11 @@ public class ModuleLibraryThing extends IsbnModule {
         }
     }
 
-    public void setaccessKey(String value) {
-        accessKey = value;
-    }
-
+    /**
+     * Send a query for each BookItem and retrieve the result using Jaxb unmarshaller
+     * @param book
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryIsbn(BookItem book) throws IsbnModuleException {
         URL query = null;
@@ -72,10 +77,16 @@ public class ModuleLibraryThing extends IsbnModule {
         processLibraryThingTree(libraryThingXML, book);
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryInitialize() {
     }
 
+    /**
+     * 
+     */
     @Override
     protected void processQueryTerminate() {
     }
@@ -150,6 +161,11 @@ public class ModuleLibraryThing extends IsbnModule {
         return null;
     }
 
+    /**
+     * 
+     * @param sObj
+     * @throws ConfigurationParserException
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj)
             throws ConfigurationParserException {

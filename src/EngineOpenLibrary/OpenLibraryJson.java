@@ -1,3 +1,7 @@
+/*
+ * Generated with Json Gen classes generator
+ * http://jsongen.byingtondesign.com/
+ */
 package EngineOpenLibrary;
 
 import com.fasterxml.jackson.annotation.*;

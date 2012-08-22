@@ -23,10 +23,18 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  */
 public class ModuleOpenLibrary extends IsbnModule {
     final static String MODULE_NAME = "OpenLibrary";
+    /**
+     * Implementation of OpenLibrary Engine using Json Pojo and Jackson unmarshaller
+     */
     public ModuleOpenLibrary()
     {
         moduleName = MODULE_NAME;
     }
+    /**
+     * Send a query for each bookItem and retrieve the result using Jackson unmarshaller
+     * @param book
+     * @throws IsbnModuleException
+     */
     @Override
     protected void processQueryIsbn(BookItem book) throws IsbnModuleException
     {
@@ -52,9 +60,15 @@ public class ModuleOpenLibrary extends IsbnModule {
         }
         processJSON(book, olj);
     }
+    /**
+     * 
+     */
     @Override
     protected void processQueryInitialize() {
     }
+    /**
+     * 
+     */
     @Override
     protected void processQueryTerminate() {
     }
@@ -99,6 +113,10 @@ public class ModuleOpenLibrary extends IsbnModule {
         }
     }
 
+    /**
+     * 
+     * @param sObj
+     */
     @Override
     protected void setConfigurationSpecific(SubnodeConfiguration sObj) {
     }
