@@ -43,6 +43,10 @@ public class CliInterpreter {
      * BibTeX output mode
      */
     public final static int OUTPUT_BIBTEX = 5;
+    /**
+     * CSV output mode
+     */
+    public final static int OUTPUT_CSV = 6;
     
     private final static String OPT_OUTPUT_MODE = "o";
     private final static String OPT_OUTPUT_PATH = "oF";
@@ -124,7 +128,7 @@ public class CliInterpreter {
         options.addOption(OPT_CONF_PATH, true, "Set the configuration file");
         options.addOption(OPT_INPUT_MODE, true, "Get ISBN from an external source. Possible values are: csv");
         options.addOption(OPT_INPUT_PATH, true, "Specify the input filename");
-        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, bibtex");
+        options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, bibtex, csv");
         options.addOption(OPT_OUTPUT_PATH, true, "Specify the output filename");
         options.addOption(OPT_ISBN_SET, true, "Specify a list of ISBNs 10 or 13 separated by commas.");
         options.addOption(OPT_LIST_MODULES, false, "List the Search engines and output values. These values can be specified in the configuration file");
@@ -168,6 +172,8 @@ public class CliInterpreter {
                 outputMode = OUTPUT_XML;
             } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("bibtex")) {
                 outputMode = OUTPUT_BIBTEX;
+            } else if (cmd.getOptionValue(OPT_OUTPUT_MODE).equals("csv")) {
+                outputMode = OUTPUT_CSV;
             }
             else
                 throw new ParseException(ERR_UNRECOGNIZED_OPT + cmd.getOptionValue(OPT_OUTPUT_MODE));
@@ -175,7 +181,7 @@ public class CliInterpreter {
         else {
              outputMode = OUTPUT_CLI;
         }
-        if (outputMode == OUTPUT_XML || outputMode == OUTPUT_BIBTEX) {
+        if (outputMode == OUTPUT_XML || outputMode == OUTPUT_CSV || outputMode == OUTPUT_BIBTEX) {
             if (!cmd.hasOption(OPT_OUTPUT_PATH))
                 throw new ParseException(ERR_UNDEFINED_OPT + OPT_OUTPUT_PATH);
             else
@@ -221,6 +227,8 @@ public class CliInterpreter {
             return new IsbnOutputXml(getOutputFile());
         } else if (getOutputMode() == OUTPUT_BIBTEX) {
             return new IsbnOutputBibTeX(getOutputFile());
+        } else if (getOutputMode() == OUTPUT_CSV) {
+            return new IsbnOutputCsv(getOutputFile());
         } else {
             return null;
         }
