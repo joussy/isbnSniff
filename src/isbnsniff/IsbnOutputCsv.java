@@ -23,10 +23,10 @@ final public class IsbnOutputCsv extends IsbnOutput {
     /**
      * Print the Engine results on the standard output
      */
-    public IsbnOutputCsv(File value) {
+    public IsbnOutputCsv(File value, String delimiter) {
         super(mName);
         filename = value;
-        csvSeparator = ",";
+        csvSeparator = delimiter;
     }
     
     /**
@@ -40,6 +40,7 @@ final public class IsbnOutputCsv extends IsbnOutput {
                 + "isbn10" + csvSeparator
                 + BookItem.A_TITLE + csvSeparator
                 + BookItem.A_AUTHORS + csvSeparator
+                + BookItem.A_PUBLISHER + csvSeparator
                 + BookItem.A_CATEGORIES + csvSeparator
                 + BookItem.A_NBPAGES + csvSeparator
                 + BookItem.A_PUBLICATION_DATE + csvSeparator
@@ -58,6 +59,7 @@ final public class IsbnOutputCsv extends IsbnOutput {
                 }
             }
             out += "\"" + csvSeparator;
+            out += "\"" + book.getPublisher() + "\"" + csvSeparator;
             out += "\"";
             if (book.getCategoryList() != null)
             {
@@ -68,8 +70,13 @@ final public class IsbnOutputCsv extends IsbnOutput {
             }
             out += "\"" + csvSeparator;
             out += "\"" + book.getNbPages() + "\"" + csvSeparator;
-            out += "\"" + DateFormat.getDateInstance(DateFormat.MEDIUM).
-                format(book.getPublicationDate())+ "\"" + csvSeparator;
+            out += "\"";
+            if (book.getPublicationDate() != null)
+            {
+                out += DateFormat.getDateInstance(DateFormat.MEDIUM).
+                    format(book.getPublicationDate());
+            }
+            out += "\"" + csvSeparator;
             out += "\"" + book.getSynopsis() + "\"" + csvSeparator;
             out += System.getProperty("line.separator");
         }

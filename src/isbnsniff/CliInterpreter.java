@@ -50,6 +50,7 @@ public class CliInterpreter {
     
     private final static String OPT_OUTPUT_MODE = "o";
     private final static String OPT_OUTPUT_PATH = "oF";
+    private final static String OPT_OUTPUT_DELIMITER = "oD";
     private final static String OPT_INPUT_MODE = "i";
     private final static String OPT_INPUT_PATH = "iF";
     private final static String OPT_CONF_PATH = "c";
@@ -60,12 +61,15 @@ public class CliInterpreter {
     private final static String ERR_UNDEFINED_OPT = "Missing option: ";
     private final static String ERR_UNRECOGNIZED_OPT = "Unrecognized value for option: ";
     
+    private final static String OUTPUT_DEFAULT_CSV_DELIMITER = ";";
+    
     private final static String USAGE_NAME = "isbnsniff";
     private File outputFile = null;
     private File inputFile = null;
     private File configurationFile = null;
     private int inputMode = INPUT_NO;
     private int outputMode = 0;
+    private String outputDelimiter = OUTPUT_DEFAULT_CSV_DELIMITER;
     private CommandLine cmd = null;
     private Options options = null;
     private String isbnListString = null;
@@ -118,7 +122,7 @@ public class CliInterpreter {
         String cliUsage = USAGE_NAME + " "
                 + " -" + OPT_CONF_PATH + " <path> "
                 + "[[-" + OPT_INPUT_MODE + " <arg> -" + OPT_INPUT_PATH + " <arg>] | -" + OPT_ISBN_SET + " <arg>] "
-                + "[-" + OPT_OUTPUT_MODE + " <arg> -" + OPT_OUTPUT_PATH + " <arg>] "
+                + "[-" + OPT_OUTPUT_MODE + " <arg> -" + OPT_OUTPUT_PATH + " <arg> -" + OPT_OUTPUT_DELIMITER + " <arg>] "
                 + System.getProperty("line.separator");
         formatter.printHelp(100, cliUsage, header, options, "");
     }
@@ -130,6 +134,7 @@ public class CliInterpreter {
         options.addOption(OPT_INPUT_PATH, true, "Specify the input filename");
         options.addOption(OPT_OUTPUT_MODE, true, "Extract Lookup results to an external file. Possible values are: xml, bibtex, csv");
         options.addOption(OPT_OUTPUT_PATH, true, "Specify the output filename");
+        options.addOption(OPT_OUTPUT_DELIMITER, true, "For csv Output format only. Specify the delimiter. Default delimiter is " + OUTPUT_DEFAULT_CSV_DELIMITER);
         options.addOption(OPT_ISBN_SET, true, "Specify a list of ISBNs 10 or 13 separated by commas.");
         options.addOption(OPT_LIST_MODULES, false, "List the Search engines and output values. These values can be specified in the configuration file");
         options.addOption(OPT_HELP, false, "Print this help message.");
@@ -181,6 +186,11 @@ public class CliInterpreter {
         else {
              outputMode = OUTPUT_CLI;
         }
+        if (cmd.hasOption(OPT_OUTPUT_DELIMITER)) {
+            outputDelimiter = cmd.getOptionValue(OPT_OUTPUT_DELIMITER);
+            if (outputDelimiter == null)
+                throw new ParseException(ERR_UNDEFINED_OPT + OPT_OUTPUT_DELIMITER);                
+        }
         if (outputMode == OUTPUT_XML || outputMode == OUTPUT_CSV || outputMode == OUTPUT_BIBTEX) {
             if (!cmd.hasOption(OPT_OUTPUT_PATH))
                 throw new ParseException(ERR_UNDEFINED_OPT + OPT_OUTPUT_PATH);
@@ -228,7 +238,7 @@ public class CliInterpreter {
         } else if (getOutputMode() == OUTPUT_BIBTEX) {
             return new IsbnOutputBibTeX(getOutputFile());
         } else if (getOutputMode() == OUTPUT_CSV) {
-            return new IsbnOutputCsv(getOutputFile());
+            return new IsbnOutputCsv(getOutputFile(), getOutputDelimiter());
         } else {
             return null;
         }
@@ -280,5 +290,14 @@ public class CliInterpreter {
      */
     public int getOutputMode() {
         return outputMode;
+    }
+    
+    /**
+     * Gets the delimiter defined in case of CSV format export has been
+     * define by command-line.
+     * @return a String containing a delimiter. Never null.
+     */
+    public String getOutputDelimiter() {
+        return outputDelimiter;
     }
 }
